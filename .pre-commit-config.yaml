@@ -1,0 +1,39 @@
+repos:
+  - repo: https://github.com/ansible/ansible-lint
+    rev: v24.2.2
+    hooks:
+      - id: ansible-lint
+  - repo: https://github.com/zricethezav/gitleaks
+    rev: v8.18.2
+    hooks:
+      - id: gitleaks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-added-large-files
+        args: ['--maxkb=15360']
+      - id: check-executables-have-shebangs
+      - id: check-merge-conflict
+      - id: check-shebang-scripts-are-executable
+      - id: check-symlinks
+      - id: check-toml
+      - id: check-yaml
+        args: [--unsafe]
+        exclude: |
+            (?x)^(
+                cloud-init/.*\.yml
+            )$
+      - id: debug-statements
+      - id: destroyed-symlinks
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: fix-byte-order-marker
+      - id: mixed-line-ending
+      - id: trailing-whitespace
+        exclude: |
+            (?x)^(
+                .*\.md|
+                .vscode/settings.json|
+                .vscode/launch.json|
+                .vscode/extensions.json
+            )$

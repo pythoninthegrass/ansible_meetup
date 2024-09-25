@@ -1,0 +1,47 @@
+# code: language=ansible
+
+---
+- hosts: localhost
+  connection: local
+  gather_facts: true
+  any_errors_fatal: true
+  vars:
+    base_dir: "{{ home_dir }}/git/nerd-fonts"
+    repo_url: https://github.com/ryanoasis/nerd-fonts.git
+    version: master
+    sparse_checkout: patched-fonts/Hack
+  pre_tasks:
+    - name: Get running ansible user
+      ansible.builtin.set_fact:
+        local_user: "{{ lookup('env', 'USER') }}"
+        home_dir: "{{ lookup('env', 'HOME') }}"
+        work_dir: "{{ playbook_dir | dirname }}"
+        cacheable: true
+  tasks:
+    - name: Delete repo directory if it exists
+      ansible.builtin.file:
+        path: "{{ base_dir }}"
+        state: absent
+
+    - name: Create repo directory
+      ansible.builtin.file:
+        path: "{{ base_dir }}"
+        state: directory
+        owner: "{{ local_user }}"
+        group: "{{ local_user }}"
+        mode: 0755
+
+    - name: Clone repo
+      ansible.builtin.shell: |
+        git clone --filter=blob:none --sparse "{{ repo_url }}" "{{ base_dir }}"
+        cd "{{ base_dir }}"
+        git sparse-checkout add "{{ sparse_checkout }}"
+      become: true
+      become_user: "{{ local_user }}"
+
+    - name: Install font
+      ansible.builtin.shell: |
+        cd "{{ base_dir }}"
+        ./install.sh Hack
+      become: true
+      become_user: "{{ local_user }}"

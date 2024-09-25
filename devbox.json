@@ -1,0 +1,31 @@
+{
+  "packages": [
+    "python@3.11.9",
+    "python311Packages.pip@latest",
+    "poetry@latest",
+    "ansible-lint@latest",
+    "ansible@latest",
+    "asdf-vm@latest",
+    "git@latest",
+    "gnumake@latest",
+    "go-task@latest",
+    "uv@latest"
+  ],
+  "env": {
+    "VENV_DIR":        ".venv",
+    "UV_HTTP_TIMEOUT": "150"
+  },
+  "shell": {
+    "init_hook": [
+      ". $VENV_DIR/bin/activate",
+      "uv pip install -r requirements.txt",
+      "[ $(uname -s ) = 'Darwin' ] && source ./bin/ansible_functions.sh && export ANSIBLE_BECOME_PASS=$(askpass --sudo)"
+    ],
+    "scripts": {
+      "export-reqs": "uv pip freeze | uv pip compile - -o requirements.txt",
+      "install":     "uv pip install -r requirements.txt",
+      "test":        "pytest",
+      "venv":        "uv venv ${VENV_DIR} --allow-existing"
+    }
+  }
+}

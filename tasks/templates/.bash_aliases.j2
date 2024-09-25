@@ -1,0 +1,62 @@
+# shellcheck disable=all
+
+# aliases
+alias rsync='rsync -arvW --progress --stats --ignore-existing'      # archive, recursive, verbose, whole-file
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+alias c=clear
+alias ..='cd ../'
+alias ...='cd ../../'
+
+# k8s
+alias k="kubectl"
+# source <(kubectl completion bash)
+# complete -o default -F __start_kubectl k
+alias mk='minikube'
+# source <(minikube completion bash)
+
+# asdf
+# https://asdf-vm.com/guide/getting-started.html
+export ASDF_DIR="$HOME/.asdf"
+[[ -f "$ASDF_DIR/asdf.sh" ]] && . "$ASDF_DIR/asdf.sh"
+
+# fzf
+# https://github.com/junegunn/fzf#using-git
+[[ -f ~/.fzf.bash ]] && . ~/.fzf.bash
+
+# lazydocker
+# https://github.com/jesseduffield/lazydocker#installation
+alias lzd="lazydocker"
+
+# lazygit
+# https://github.com/jesseduffield/lazygit?tab=readme-ov-file#installation
+lg() {
+    export LAZYGIT_NEW_DIR_FILE=~/.lazygit/newdir
+
+    lazygit "$@"
+
+    if [ -f $LAZYGIT_NEW_DIR_FILE ]; then
+        cd "$(cat $LAZYGIT_NEW_DIR_FILE)"
+        rm -f $LAZYGIT_NEW_DIR_FILE > /dev/null
+    fi
+}
+
+# recursive git status
+git_status() {
+    export GREEN='\033[0;32m'
+    export YELLOW='\033[0;33m'
+    export RED='\033[0;31m'
+    export BLUE='\033[0;34m'
+    export NC='\033[0m'
+    git_dir=$(find . -mindepth 1 -maxdepth 1 -type d ! -name ".git")
+    for dir in $git_dir; do
+        cd $dir && printf "${GREEN}${dir}${NC}\n"
+        branch=$(git branch --show-current)
+        status=$(git status --porcelain)
+        [[ -n $branch ]] && printf "${BLUE}Branch${NC}: $branch\n"
+        [[ -n $status ]] && printf "${YELLOW}$status${NC}\n"
+        [[ -z $status ]] && printf "${GREEN}Clean${NC}\n" || printf "${RED}Dirty${NC}\n"
+        cd ..
+    done
+}

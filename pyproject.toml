@@ -1,0 +1,91 @@
+[tool.poetry]
+name = "ansible_meetup"
+version = "0.1.0"
+description = ""
+authors = ["pythoninthegrass <4097471+pythoninthegrass@users.noreply.github.com>"]
+readme = "README.md"
+license = "Unlicense"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = ">=3.11,<3.13"
+ansible-compat = "^24.6.0"
+ansible-core = "^2.17.0"
+ansible-lint = {version = "^24.5.0", markers = "platform_system != 'Windows'"}
+ansibug = "^0.1.0"
+eliot = "^1.15.0"
+pexpect = "^4.9.0"
+python-decouple = "^3.8"
+redis = "5.0.8"
+requests = "^2.32.3"
+requests-cache = "^1.2.1"
+wheel = "^0.43.0"
+yamllint = "^1.35.1"
+
+[tool.poetry.group.dev.dependencies]
+argcomplete = "^3.4.0"
+icecream = "^2.1.3"
+ipython = "^8.22.1"
+poetry-plugin-export = "^1.8.0"
+poetry-plugin-up = "^0.7.1"
+pyclean = "^3.0.0"
+rich = "^13.7.1"
+ruff = "^0.0.270"
+
+[tool.uv.pip]
+index-url = "https://pypi.org/simple"
+
+[tool.ruff]
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+select = ["E", "F"]
+ignore = []
+# Skip unused variable rules
+extend-ignore = ["D203", "E203", "E251", "E266", "E401", "E402", "E501", "F401", "F403"]
+
+# Allow autofix for all enabled rules (when `--fix`) is provided.
+fixable = ["A", "B", "C", "D", "E", "F", "G", "I", "N", "Q", "S", "T", "W", "ANN", "ARG", "BLE", "COM", "DJ", "DTZ", "EM", "ERA", "EXE", "FBT", "ICN", "INP", "ISC", "NPY", "PD", "PGH", "PIE", "PL", "PT", "PTH", "PYI", "RET", "RSE", "RUF", "SIM", "SLF", "TCH", "TID", "TRY", "UP", "YTT"]
+unfixable = []
+
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    "dist",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    "__pycache__",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+# Black (default: 88)
+line-length = 130
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+# Assume Python 3.11.
+target-version = "py311"
+
+[tool.ruff.mccabe]
+# Unlike Flake8, default to a complexity level of 10.
+max-complexity = 10
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

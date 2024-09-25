@@ -1,0 +1,31 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+# top-most EditorConfig file
+root = true
+
+# Unix-style newlines, charset, whitespace cleanup
+[*]
+end_of_line = lf
+charset = utf-8
+insert_final_newline = true
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# Protect whitespace in markdown files
+[*.md]
+trim_trailing_whitespace = false
+
+# general formatting
+[*.{bash,go,sh,zsh,justfile,Makefile}]
+indent_style = tab
+indent_size = 4
+
+# python
+[*.py]
+indent_style = space
+indent_size = 4
+
+# webdev + terraform
+[*.{html,xml,js,css,json,cfg,tf,tfvars,yml,yaml}]
+indent_style = space
+indent_size = 2

@@ -1,0 +1,2 @@
+username,use_sudo,acl
+jsmith,yes,"datascience,elastic,resource,sql,mongodb,microservices,bonfire"

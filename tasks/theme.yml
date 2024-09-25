@@ -1,0 +1,95 @@
+# code: language=ansible
+
+---
+- hosts: localhost
+  connection: local
+  become: false
+  gather_facts: true
+  # debugger: on_failed
+  any_errors_fatal: true
+  vars:
+    os_environment:
+      - key: EDITOR
+        value: vim
+  pre_tasks:
+    - name: Get running ansible user
+      ansible.builtin.set_fact:
+        local_user: "{{ lookup('env', 'USER') }}"
+        home_dir: "{{ lookup('env', 'HOME') }}"
+        work_dir: "{{ playbook_dir | dirname }}"
+        cacheable: true
+      tags: qa
+
+    - name: Top-level directory in project
+      ansible.builtin.shell: git rev-parse --show-toplevel
+      register: tld
+      tags: qa
+
+    - name: Set tld stdout fact
+      ansible.builtin.set_fact:
+        tld: "{{ tld.stdout }}"
+      tags: qa
+
+    - name: Get OS release
+      ansible.builtin.set_fact:
+        os_release: "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}"
+        major_ver: "{{ ansible_distribution_major_version }}"
+        distro: "{{ ansible_distribution }}"
+      tags: qa
+  tasks:
+    - name: Download nordic theme from github
+      ansible.builtin.git:
+        repo: https://github.com/EliverLara/Nordic.git
+        dest: "{{ home_dir }}/.themes/Nordic"
+        clone: true
+        update: true
+        force: true
+        version: master
+
+    - name: Set theme
+      ansible.builtin.shell: |
+        gsettings set org.gnome.desktop.interface gtk-theme "Nordic"
+        gsettings set org.gnome.desktop.wm.preferences theme "Nordic"
+
+    - name: Download papirus icons
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/PapirusDevelopmentTeam/papirus-icon-theme/master/install.sh
+        dest: "/tmp/install.sh"
+        mode: 0755
+
+    - name: Install papirus icons
+      ansible.builtin.shell: |
+        export DESTDIR="{{ home_dir }}/.icons"
+        /tmp/install.sh
+
+    - name: Set icons
+      ansible.builtin.shell: |
+        gsettings set org.gnome.desktop.interface icon-theme "Papirus-Dark"
+
+    - name: Download hack nerd fonts
+      ansible.builtin.shell: |
+        git clone --filter=blob:none --sparse https://github.com/ryanoasis/nerd-fonts.git /tmp/nerd-fonts
+        cd /tmp/nerd-fonts
+        git sparse-checkout set --cone
+        git sparse-checkout set patched-fonts/Hack/
+        git read-tree -mu HEAD
+
+    - name: Install hack nerd fonts
+      ansible.builtin.shell: |
+        /tmp/nerd-fonts/install.sh --clean --ttf --install-to-system-path Hack
+      become: true
+
+    - name: Set regular fonts
+      ansible.builtin.shell: |
+        gsettings set org.gnome.desktop.interface font-name "Cantarell Regular 11"
+        gsettings set org.gnome.desktop.interface document-font-name "Cantarell Regular 11"
+        gsettings set org.gnome.desktop.wm.preferences titlebar-font "Cantarell Regular 11"
+      when: ansible_os_family == "RedHat"
+
+    - name: Set monospace fonts
+      ansible.builtin.shell: |
+        gsettings set org.gnome.desktop.interface monospace-font-name "Hack Nerd Font 10"
+
+    - name: Set wallpaper
+      ansible.builtin.shell: |
+        gsettings set org.gnome.desktop.background picture-uri "file://{{ tld }}/static/retro_skull_2560x1440.jpg"

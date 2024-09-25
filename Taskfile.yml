@@ -1,0 +1,102 @@
+version: "3.0"
+
+set: ['e', 'u', 'pipefail']
+shopt: ['globstar']
+
+dotenv: ['.env']
+
+env:
+  TLD:
+    sh: git rev-parse --show-toplevel
+  BUILD: ./bin/build.sh
+  COMPOSE_FILE:
+    sh: "echo ${COMPOSE_FILE:-docker-compose.yml}"
+  PLATFORM:
+    sh: "echo ${PLATFORM:-linux/amd64}"
+  REGISTRY_URL:
+    sh: "echo ${REGISTRY_URL:-docker.io}"
+  SERVICE:
+    sh: "echo ${SERVICE:-certbot-dns-godaddy}"
+  USER_NAME:
+    sh: "echo ${USER_NAME:-pythoninthegrass}"
+  UNAME:
+    sh: "uname -s"
+
+vars:
+
+includes:
+  docker:
+    taskfile: ./taskfiles/docker.yml
+    aliases: ["docker"]
+  poetry:
+    taskfile: ./taskfiles/poetry.yml
+    aliases: ["poetry"]
+
+tasks:
+  print:
+    - |
+      echo -e "TLD:\t\t$TLD"
+      echo -e "COMPOSE_FILE:\t{{.COMPOSE_FILE}}"
+      echo -e "PLATFORM:\t{{.PLATFORM}}"
+      echo -e "REGISTRY_URL:\t$REGISTRY_URL"
+      echo -e "SERVICE:\t{{.SERVICE}}"
+      echo -e "USER_NAME:\t$USER_NAME"
+      echo -e "UNAME:\t\t$UNAME"
+
+  default:
+    desc: "Default task"
+    cmds:
+      - task --list
+
+  install:
+    desc: "Install project dependencies"
+    cmds:
+      - |
+        make install
+
+  pre-commit:
+    desc: "Run pre-commit hooks"
+    cmds:
+      - pre-commit run --all-files
+
+  update-deps:
+    desc: "Update dependencies"
+    cmds:
+      - |
+        poetry run poetry up 2>/dev/null
+        poetry update --lock --no-ansi
+
+  export-reqs:
+    desc: "Export requirements.txt"
+    summary: |
+      Export the project dependencies to a requirements.txt file.
+    cmds:
+      - |
+        poetry export -f requirements.txt \
+          --output {{.TLD}}/requirements.txt \
+          --without-hashes \
+          --no-ansi
+    ignore_error: true
+
+  run:
+    desc: "Run the playbook"
+    cmds:
+      - |
+        if [[ -n {{.ARGS}} ]]; then
+          ansible-playbook \
+            -i ./ansible/hosts \
+            {{.ARGS}}
+        else
+          ansible-playbook \
+            -i ./ansible/hosts \
+            ./ansible/playbook.yml
+        fi
+
+  run-dev:
+    desc: "Run the playbook with tags and debug"
+    cmds:
+      - |
+        ansible-playbook \
+          -i ./ansible/hosts \
+          {{.ARGS}} \
+          --tags test,qa -vvv

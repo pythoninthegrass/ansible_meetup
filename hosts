@@ -1,0 +1,36 @@
+[all]
+localhost               ansible_connection=local
+
+[prod]
+
+[staging]
+
+[servers]
+
+[dev]
+192.168.8.155
+192.168.8.70
+192.168.8.75
+192.168.8.76
+192.168.8.200
+192.168.25.187
+192.168.25.196
+lance@orb
+192.168.105.7           ansible_user=lima
+
+[all:vars]
+ansible_become_method=sudo
+ansible_become_user=root
+ansible_python_interpreter=/usr/bin/python3
+ansible_async_dir=/tmp/.ansible_async
+
+[servers:vars]
+ansible_user=lance
+
+[dev:vars]
+ansible_user=lance
+ansible_become_user=lance
+
+[prod:vars]
+
+[staging:vars]

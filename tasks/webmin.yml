@@ -1,0 +1,46 @@
+# code: language=ansible
+
+---
+- hosts: all
+  become: true
+  gather_facts: false
+  any_errors_fatal: true
+  tasks:
+    - name: Gather minimal facts
+      ansible.builtin.setup:
+        gather_subset:
+          - '!all'
+          - '!any'
+          - 'distribution'
+
+    - name: Check if Webmin is already installed
+      ansible.builtin.stat:
+        path: /bin/webmin
+      register: webmin_binary
+
+    - name: Install webmin
+      block:
+        - name: Download setup-repos.sh
+          ansible.builtin.get_url:
+            url: https://raw.githubusercontent.com/webmin/webmin/master/setup-repos.sh
+            dest: /tmp/setup-repos.sh
+            mode: '0755'
+
+        - name: Run setup-repos.sh
+          ansible.builtin.command:
+            cmd: sh setup-repos.sh --force
+            chdir: /tmp
+
+        - name: Install webmin (Red Hat)
+          ansible.builtin.dnf:
+            name: webmin
+            state: present
+          when: ansible_os_family == "RedHat"
+
+        - name: Install webmin (Debian)
+          ansible.builtin.apt:
+            name: webmin
+            state: present
+            install_recommends: yes
+          when: ansible_os_family == "Debian"
+      when: not webmin_binary.stat.exists

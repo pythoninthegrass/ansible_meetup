@@ -1,0 +1,14 @@
+# https://docs.docker.com/config/pruning/
+# https://github.com/moby/moby/blob/master/contrib/init/systemd/docker.service
+# https://opensource.com/article/20/7/systemd-timers
+
+[Unit]
+Description=Cleanup dangling docker containers and images every n minutes
+Requires=docker-cleanup.service
+
+[Timer]
+Unit=docker-cleanup.service
+OnCalendar=Sat *-*-* 03:00:00
+
+[Install]
+WantedBy=timers.target

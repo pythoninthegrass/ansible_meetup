@@ -1,0 +1,21 @@
+[defaults]
+log_path                    = /var/log/ansible.log
+inventory                   = ./hosts
+roles_path                  = ./roles
+host_key_checking           = False
+retry_files_enabled         = False
+remote_tmp                  = /tmp/${USER}/ansible
+gathering                   = smart
+# * uncomment fact_caching* lines to use fact caching w/redis
+# fact_caching                = redis
+# fact_caching_prefix         = ansible_facts_
+# fact_caching_timeout        = 300
+# fact_caching_connection     = localhost:6379:0
+# strategy                    = mitogen_linear
+# strategy_plugins            = ~/.local/bin/strategy
+
+# TODO: debug mitogen/pipelining
+# [ssh_connection]
+# transport                   = ssh
+# pipelining                  = True
+# ssh_args                    = -o ControlMaster=auto -o ControlPersist=60s

@@ -1,0 +1,206 @@
+# code: language=ansible
+
+---
+- debug:
+    msg: "Use within a parent playbook as an include_tasks directive."
+
+- name: Update Package Cache (Debian)
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  register: apt_get_status
+  until: apt_get_status is success
+  retries: 3
+  delay: 5
+  become: true
+  when: ansible_os_family == "Debian"
+
+- name: Update Package Cache (Red Hat)
+  ansible.builtin.dnf:
+    update_cache: yes
+  register: dnf_status
+  until: dnf_status is success
+  retries: 3
+  delay: 5
+  become: true
+  when: ansible_os_family == "RedHat"
+
+- name: |
+    Add git-core PPA
+    DESC [Add the git-core PPA to install the latest version of git
+  ansible.builtin.apt_repository:
+    repo: "ppa:git-core/ppa"
+    state: present
+  become: true
+  when: ansible_os_family == "Debian"
+
+- name: Cross-platform dependencies
+  ansible.builtin.package:
+    name:
+      - acl
+      - ansible
+      - ansible-lint
+      - bat
+      - ca-certificates
+      - certbot
+      - cloud-init
+      - fpart
+      - git
+      - make
+      - nginx
+      - python3
+      - python3-certbot-nginx
+      - python3-pip
+      - python3-psutil
+      - python3-redis
+      - tree
+      - unzip
+      - vim
+      - wget
+    state: present
+  changed_when: false
+  become: true
+
+- name: Install Red Hat packages
+  ansible.builtin.dnf:
+    name:
+      - "@Development tools"
+      - bzip2
+      - ca-certificates
+      - gcc
+      - gdbm-devel
+      - libffi-devel
+      - libyaml-devel
+      - make
+      - ncurses-devel
+      - openssl-devel
+      - patch
+      - python3
+      - python3-devel
+      - python3-pip
+      - python3-setuptools
+      - python3-virtualenv
+      - readline-devel
+      - rust
+      - zlib-devel
+    state: present
+  become: true
+  when: ansible_os_family == "RedHat"
+
+- name: Install debian packages
+  ansible.builtin.apt:
+    name:
+      - apt-transport-https
+      - autoconf
+      - bats
+      - build-essential
+      - ca-certificates
+      - cloud-init
+      - curl
+      - gnupg-agent
+      - jq
+      - kafkacat
+      - libbz2-dev
+      - libdb-dev
+      - libffi-dev
+      - libffi-dev
+      - libgdbm-dev
+      - libgdbm6
+      - libgmp-dev
+      - liblzma-dev
+      - libncurses5-dev
+      - libncursesw5-dev
+      - libreadline-dev
+      - libreadline6-dev
+      - libsqlite3-dev
+      - libssl-dev
+      - libxml2-dev
+      - libxmlsec1-dev
+      - libyaml-dev
+      - llvm
+      - make
+      - moreutils
+      - net-tools
+      - nfs-kernel-server
+      - patch
+      - python3
+      - python3-certbot-nginx
+      - python3-pip
+      - rustc
+      - software-properties-common
+      - tk-dev
+      - tree
+      - uuid-dev
+      - vim
+      - wget
+      - xfsprogs
+      - xz-utils
+      - zlib1g-dev
+    update_cache: yes
+    state: present
+  become: true
+  when: ansible_os_family == "Debian"
+
+- name: Setup directory for git repos
+  ansible.builtin.file:
+    path: "{{ ansible_user_dir }}/git"
+    state: directory
+    owner: "{{ local_user }}"
+    group: "{{ local_user }}"
+    recurse: false
+  become_method: su
+  become_user: "{{ local_user }}"
+  become_flags: '-s /bin/sh'
+
+- name: Setup ~/.local/bin directory
+  ansible.builtin.file:
+    path: "{{ ansible_user_dir }}/.local/bin"
+    state: directory
+    owner: "{{ local_user }}"
+    group: "{{ local_user }}"
+
+- name: Enable corepack to install yarn
+  ansible.builtin.shell: |
+    corepack enable --install-directory "{{ ansible_user_dir }}/.local/bin"
+  args:
+    executable: /bin/bash
+  become: false
+  become_user: "{{ local_user }}"
+
+- name: Install pm2
+  ansible.builtin.shell: |
+    npm install -g pm2
+  args:
+    executable: /bin/bash
+  become: false
+  become_user: "{{ local_user }}"
+
+- name: Set poetry options
+  ansible.builtin.shell: |
+    poetry config virtualenvs.prefer-active-python true
+    poetry config virtualenvs.in-project true
+    poetry config virtualenvs.create true
+  args:
+    executable: /bin/bash
+  become: false
+  become_user: "{{ local_user }}"
+
+# TODO: debug 'This environment is externally managed'
+- name: Install pip packages globally
+  ansible.builtin.pip:
+    name:
+    - pipx
+    - python-decouple
+    - requests
+    - requests-cache
+    - tldr
+    state: present
+  vars:
+    PYTHONIOENCODING: "UTF-8"
+    PIP_NO_CACHE_DIR: "off"
+    PIP_DISABLE_PIP_VERSION_CHECK: "on"
+    PIP_DEFAULT_TIMEOUT: "100"
+    PIP_ROOT_USER_ACTION: "ignore"
+  changed_when: false
+  become: false
+  become_user: "{{ local_user }}"

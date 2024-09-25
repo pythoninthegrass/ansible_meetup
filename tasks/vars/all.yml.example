@@ -1,0 +1,21 @@
+# code: language=ansible
+
+---
+git_user:
+  - key: user.name
+    value: pythoninthegrass
+  - key: user.email
+    value: 4097471+pythoninthegrass@users.noreply.github.com
+
+ssh_key: id_ed25519
+gist_url: git@gist.github.com:50fd138b0d044c068c700b15028912d6.git
+
+DOMAIN: bonfiredata.com
+SUBDOMAIN: kestra
+PROXY_URL: http://10.13.37.53
+PROXY_PORT: 8880
+
+mynfs: "10.13.37.11:/mnt/pool0/nfsshare"
+mountpoint: "/nfsshare"
+permission: "0777"
+myopts: "defaults,vers=3"

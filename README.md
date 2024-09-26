@@ -56,6 +56,19 @@ Edit the `hosts` file to include the IP address of the target machine.
 192.168.105.5    ansible_user=admin
 ```
 
+Run a quick smoke test.
+
+```bash
+# ping the target machine
+ansible -m ping 192.168.105.5
+
+# ping a group of machines
+ansible -m ping servers
+
+# ping all machines
+ansible -m ping all
+```
+
 > [!NOTE]
 > `ansible` is an "agentless" configuration management tool.
 >
@@ -101,10 +114,15 @@ ssh admin@$(tart ip fedora)
 ## TODO
 
 * Ansible
-  * Install
-  * Setup
+  * ~~Install~~
+  * ~~Setup~~
   * Playbooks
     * Pare down to useful examples for short demo
+    * Ideas
+      * kind cluster
+      * cron job
+      * dev environment
+      * wallpaper 
 * Tart
   * Orchard
     * Orchestrate VMs

@@ -1,14 +1,14 @@
 {
   "packages": [
-    "poetry@latest",
     "ansible-lint@latest",
     "ansible@latest",
     "asdf-vm@latest",
     "git@latest",
     "gnumake@latest",
     "go-task@latest",
-    "uv@latest",
-    "tilt@latest"
+    "poetry@latest",
+    "tilt@latest",
+    "uv@latest"
   ],
   "env": {
     "VENV_DIR":        ".venv",
@@ -18,7 +18,7 @@
     "init_hook": [
       ". $VENV_DIR/bin/activate",
       "uv pip install -r requirements.txt",
-      "[ $(uname -s ) = 'Darwin' ] && source ./bin/ansible_functions.sh && export ANSIBLE_BECOME_PASS=$(askpass --sudo)"
+      "[ $(uname -s ) = 'Darwin' ] && export ANSIBLE_BECOME_PASS=$(askpass --sudo)"
     ],
     "scripts": {
       "export-reqs": "uv pip freeze | uv pip compile - -o requirements.txt",

@@ -6,6 +6,7 @@ localhost               ansible_connection=local
 [staging]
 
 [servers]
+192.168.105.5           ansible_user=admin
 
 [dev]
 192.168.8.155

@@ -50,12 +50,20 @@ tasks:
     cmds:
       - task --list
 
-  # TODO: use bootstrap script instead of make
-  # install:
-  #   desc: "Install project dependencies"
-  #   cmds:
-  #     - |
-  #       make install
+  install:
+    desc: "Install project dependencies"
+    cmds:
+      - ./bootstrap
+
+  setup:
+    desc: "Setup the project"
+    cmds:
+      - |
+        mkdir -p /tmp/log
+        touch /tmp/ansible.log
+        python -m venv .venv
+        # poetry install
+    run: once
 
   pre-commit:
     desc: "Run pre-commit hooks"

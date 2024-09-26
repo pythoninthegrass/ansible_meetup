@@ -89,26 +89,21 @@ tart list
 tart stop <name>
 tart delete <name>
 
-# start macos guest
+# start macos guest (manual)
 tart clone ghcr.io/cirruslabs/macos-sonoma-base:latest sonoma-base
 tart set sonoma-base --disk-size 40
 tart run sonoma-base
 ssh-copy-id admin@$(tart ip sonoma-base)
 ssh admin@$(tart ip sonoma-base)
 
-# start ubuntu guest
-tart clone ghcr.io/cirruslabs/ubuntu:latest ubuntu
-tart set ubuntu --disk-size 20
-tart run ubuntu &
-ssh-copy-id admin@$(tart ip ubuntu)
-ssh admin@$(tart ip ubuntu)
-
-# start fedora guest
-tart clone ghcr.io/cirruslabs/fedora:latest fedora
-tart set fedora --disk-size 20
-tart run fedora &
-ssh-copy-id admin@$(tart ip fedora)
-ssh admin@$(tart ip fedora)
+# vagrant via task (automatic)
+# * macos, ubuntu, fedora are supported
+task vagrant:plugin
+task vagrant:up -- macos
+task vagrant:ssh -- macos
+task vagrant:halt -- macos
+task vagrant:destroy -- macos
+task vagrant:validate -- macos
 ```
 
 ## TODO
@@ -123,6 +118,8 @@ ssh admin@$(tart ip fedora)
       * cron job
       * dev environment
       * wallpaper 
+* Vagrant
+  * Use provisioning with ansible to install minimum requirements in each vm
 * Tart
   * Orchard
     * Orchestrate VMs
@@ -130,6 +127,7 @@ ssh admin@$(tart ip fedora)
   * Packer
     * Build custom images (e.g., Fedora 40, Ubuntu 24.04)
 * Test
+  * gum install on fedora and ubuntu
   * Run on fresh Mac (remember devbox 😭)
 
 ## Further Reading

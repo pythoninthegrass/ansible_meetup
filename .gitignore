@@ -3,24 +3,17 @@
 *.bak
 *.pub
 *.retry
+**/.vagrant*/
 **/*.com
 **/*.sqlite
 **/all.yml
+**/ansible.cfg
 **/facts/
 **/keys/*
-ansible.cfg
+**/roles/*
 keys.json
 redis.conf
-roles/*
 scratch.*
-users.csv
-.vagrant*/
-
-# INCLUDE
-!**/.gitkeep
-!**/*.example
-!**/create-env
-!**/pre-tasks
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -313,3 +306,9 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# INCLUDE
+!**/.gitkeep
+!**/*.example
+!**/create-env
+!**/pre-tasks

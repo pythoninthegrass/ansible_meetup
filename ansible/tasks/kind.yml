@@ -1,0 +1,84 @@
+# code: language=ansible
+
+---
+- name: Setup Kind Cluster
+  hosts: all
+  become: true
+  vars:
+    kind_version: "v0.24.0"
+    kubernetes_version: "v1.31.1"
+    control_plane_count: 1
+    worker_count: 2
+
+  roles:
+    - role: geerlingguy.swap
+      swap_file_state: absent
+
+    - role: geerlingguy.docker
+      vars:
+        docker_add_repo: true
+        docker_repo_url: https://download.docker.com/linux
+        docker_users:
+          - "{{ ansible_user }}"
+        docker_daemon_options:
+          storage-driver: "vfs"
+          log-opts:
+            max-size: "100m"
+
+  tasks:
+    - name: Install dependencies
+      ansible.builtin.package:
+        name:
+          - curl
+          - git
+          - golang
+        state: present
+
+    - name: Install Kind
+      ansible.builtin.get_url:
+        url: "https://kind.sigs.k8s.io/dl/{{ kind_version }}/kind-{{ ansible_system | lower }}-{{ ansible_architecture }}"
+        dest: /usr/local/bin/kind
+        mode: '0755'
+      tags: qa
+
+    - name: Create Kind config file
+      ansible.builtin.copy:
+        content: |
+          kind: Cluster
+          apiVersion: kind.x-k8s.io/v1alpha4
+          nodes:
+          - role: control-plane
+          {% for _ in range(worker_count) %}
+          - role: worker
+          {% endfor %}
+        dest: /tmp/kind-config.yaml
+        register: kind_config
+      tags: qa
+
+    - name: Print Kind config
+      debug:
+        msg: kind_config.content
+      tags: qa
+
+    - name: Create Kind cluster
+      ansible.builtin.command:
+        kind create cluster --config /tmp/kind-config.yaml --image kindest/node:{{ kubernetes_version }}
+      args:
+        creates: ~/.kube/config
+      tags: qa
+
+    - name: Get cluster info
+      ansible.builtin.command: kubectl cluster-info
+      register: cluster_info
+      tags: qa
+
+    - name: Display cluster info
+      debug:
+        msg: cluster_info.stdout_lines
+      tags: qa
+
+  handlers:
+    - name: Restart Docker
+      ansible.builtin.service:
+        name: docker
+        state: restarted

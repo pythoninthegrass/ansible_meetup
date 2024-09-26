@@ -71,3 +71,4 @@ ssh admin@$(tart ip fedora)
 
 ## Further Reading
 
+* [General tips — Ansible Community Documentation](https://docs.ansible.com/ansible/latest/tips_tricks/ansible_tips_tricks.html)

@@ -28,6 +28,15 @@ vars:
       fi
 
 tasks:
+  _validate:
+    internal: true
+    desc: "Internal task to validate the Vagrantfile"
+    cmds:
+      - |
+        {{.VAGRANT_CMD}}
+        vagrant validate
+    dir: "{{.ROOT_DIR}}/vagrant"
+
   _run:
     internal: true
     desc: "Internal task to run Vagrant commands"
@@ -36,6 +45,26 @@ tasks:
         {{.VAGRANT_CMD}}
         vagrant {{.VAGRANT_ACTION}}
     dir: "{{.ROOT_DIR}}/vagrant"
+
+  plugin:
+    desc: "Install the vagrant plugin"
+    cmds:
+      - vagrant plugin install vagrant-tart
+    run: once
+    silent: true
+
+  validate:
+    desc: "Validate the Vagrantfile"
+    summary: |
+      Validate the Vagrantfile. Specify the Vagrantfile to use:
+        - macos
+        - fedora
+        - ubuntu
+
+      Example:
+        task vagrant:validate -- macos
+    cmds:
+      - task: _validate
 
   up:
     desc: "Start the project with vagrant"

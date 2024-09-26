@@ -8,7 +8,7 @@
 **/*.sqlite
 **/all.yml
 **/ansible.cfg
-**/facts/
+**/facts/*
 **/keys/*
 **/roles/*
 keys.json

@@ -5,7 +5,38 @@ shopt: ['globstar']
 
 env:
 
+vars:
+  VAGRANT_CMD:
+    sh: |
+      if [[ -n "{{.CLI_ARGS}}" ]]; then
+        case "{{.CLI_ARGS}}" in
+          "macos")
+            echo "export VAGRANT_VAGRANTFILE=Vagrantfile.macos VAGRANT_DOTFILE_PATH=.vagrant_macos"
+            ;;
+          "fedora")
+            echo "export VAGRANT_VAGRANTFILE=Vagrantfile.fedora VAGRANT_DOTFILE_PATH=.vagrant_fedora"
+            ;;
+          "ubuntu")
+            echo "export VAGRANT_VAGRANTFILE=Vagrantfile.ubuntu VAGRANT_DOTFILE_PATH=.vagrant_ubuntu"
+            ;;
+          *)
+            echo "echo 'Invalid argument. Use macos, fedora, or ubuntu.' >&2; exit 1"
+            ;;
+        esac
+      else
+        echo "echo 'No Vagrantfile specified. Using default.' >&2"
+      fi
+
 tasks:
+  _run:
+    internal: true
+    desc: "Internal task to run Vagrant commands"
+    cmds:
+      - |
+        {{.VAGRANT_CMD}}
+        vagrant {{.VAGRANT_ACTION}}
+    dir: "{{.ROOT_DIR}}/vagrant"
+
   up:
     desc: "Start the project with vagrant"
     summary: |
@@ -19,25 +50,8 @@ tasks:
       Example:
         task vagrant:up -- macos
     cmds:
-      - |
-        if [[ -n "{{.CLI_ARGS}}" ]]; then
-          case {{.CLI_ARGS}} in
-            "macos")
-              export VAGRANT_VAGRANTFILE=Vagrantfile.macos
-              export VAGRANT_DOTFILE_PATH=.vagrant_macos
-              ;;
-            "fedora")
-              export VAGRANT_VAGRANTFILE=Vagrantfile.fedora
-              export VAGRANT_DOTFILE_PATH=.vagrant_fedora
-              ;;
-            "ubuntu")
-              export VAGRANT_VAGRANTFILE=Vagrantfile.ubuntu
-              export VAGRANT_DOTFILE_PATH=.vagrant_ubuntu
-              ;;
-          esac
-        fi
-        vagrant up
-    dir: "{{.ROOT_DIR}}/vagrant"
+      - task: _run
+        vars: { VAGRANT_ACTION: "up" }
 
   destroy:
     desc: "Destroy the vagrant machine"
@@ -50,25 +64,8 @@ tasks:
       Example:
         task vagrant:destroy -- macos
     cmds:
-      - |
-        if [[ -n "{{.CLI_ARGS}}" ]]; then
-          case {{.CLI_ARGS}} in
-            "macos")
-              export VAGRANT_VAGRANTFILE=Vagrantfile.macos
-              export VAGRANT_DOTFILE_PATH=.vagrant_macos
-              ;;
-            "fedora")
-              export VAGRANT_VAGRANTFILE=Vagrantfile.fedora
-              export VAGRANT_DOTFILE_PATH=.vagrant_fedora
-              ;;
-            "ubuntu")
-              export VAGRANT_VAGRANTFILE=Vagrantfile.ubuntu
-              export VAGRANT_DOTFILE_PATH=.vagrant_ubuntu
-              ;;
-          esac
-        fi
-        vagrant destroy -f
-    dir: "{{.ROOT_DIR}}/vagrant"
+      - task: _run
+        vars: { VAGRANT_ACTION: "destroy -f" }
 
   suspend:
     desc: "Suspend the vagrant machine"
@@ -81,25 +78,8 @@ tasks:
       Example:
         task vagrant:suspend -- macos
     cmds:
-      - |
-        if [[ -n "{{.CLI_ARGS}}" ]]; then
-          case {{.CLI_ARGS}} in
-            "macos")
-              export VAGRANT_VAGRANTFILE=Vagrantfile.macos
-              export VAGRANT_DOTFILE_PATH=.vagrant_macos
-              ;;
-            "fedora")
-              export VAGRANT_VAGRANTFILE=Vagrantfile.fedora
-              export VAGRANT_DOTFILE_PATH=.vagrant_fedora
-              ;;
-            "ubuntu")
-              export VAGRANT_VAGRANTFILE=Vagrantfile.ubuntu
-              export VAGRANT_DOTFILE_PATH=.vagrant_ubuntu
-              ;;
-          esac
-        fi
-        vagrant suspend
-    dir: "{{.ROOT_DIR}}/vagrant"
+      - task: _run
+        vars: { VAGRANT_ACTION: "suspend" }
 
   resume:
     desc: "Resume the vagrant machine"
@@ -112,25 +92,8 @@ tasks:
       Example:
         task vagrant:resume -- macos
     cmds:
-      - |
-        if [[ -n "{{.CLI_ARGS}}" ]]; then
-          case {{.CLI_ARGS}} in
-            "macos")
-              export VAGRANT_VAGRANTFILE=Vagrantfile.macos
-              export VAGRANT_DOTFILE_PATH=.vagrant_macos
-              ;;
-            "fedora")
-              export VAGRANT_VAGRANTFILE=Vagrantfile.fedora
-              export VAGRANT_DOTFILE_PATH=.vagrant_fedora
-              ;;
-            "ubuntu")
-              export VAGRANT_VAGRANTFILE=Vagrantfile.ubuntu
-              export VAGRANT_DOTFILE_PATH=.vagrant_ubuntu
-              ;;
-          esac
-        fi
-        vagrant resume
-    dir: "{{.ROOT_DIR}}/vagrant"
+      - task: _run
+        vars: { VAGRANT_ACTION: "resume" }
 
   halt:
     desc: "Halt the vagrant machine"
@@ -143,25 +106,8 @@ tasks:
       Example:
         task vagrant:halt -- macos
     cmds:
-      - |
-        if [[ -n "{{.CLI_ARGS}}" ]]; then
-          case {{.CLI_ARGS}} in
-            "macos")
-              export VAGRANT_VAGRANTFILE=Vagrantfile.macos
-              export VAGRANT_DOTFILE_PATH=.vagrant_macos
-              ;;
-            "fedora")
-              export VAGRANT_VAGRANTFILE=Vagrantfile.fedora
-              export VAGRANT_DOTFILE_PATH=.vagrant_fedora
-              ;;
-            "ubuntu")
-              export VAGRANT_VAGRANTFILE=Vagrantfile.ubuntu
-              export VAGRANT_DOTFILE_PATH=.vagrant_ubuntu
-              ;;
-          esac
-        fi
-        vagrant halt
-    dir: "{{.ROOT_DIR}}/vagrant"
+      - task: _run
+        vars: { VAGRANT_ACTION: "halt" }
 
   ssh:
     desc: "SSH into the vagrant machine"
@@ -174,25 +120,8 @@ tasks:
       Example:
         task vagrant:ssh -- macos
     cmds:
-      - |
-        if [[ -n "{{.CLI_ARGS}}" ]]; then
-          case {{.CLI_ARGS}} in
-            "macos")
-              export VAGRANT_VAGRANTFILE=Vagrantfile.macos
-              export VAGRANT_DOTFILE_PATH=.vagrant_macos
-              ;;
-            "fedora")
-              export VAGRANT_VAGRANTFILE=Vagrantfile.fedora
-              export VAGRANT_DOTFILE_PATH=.vagrant_fedora
-              ;;
-            "ubuntu")
-              export VAGRANT_VAGRANTFILE=Vagrantfile.ubuntu
-              export VAGRANT_DOTFILE_PATH=.vagrant_ubuntu
-              ;;
-          esac
-        fi
-        vagrant ssh
-    dir: "{{.ROOT_DIR}}/vagrant"
+      - task: _run
+        vars: { VAGRANT_ACTION: "ssh" }
 
   reload:
     desc: "Reload the vagrant machine"
@@ -205,22 +134,5 @@ tasks:
       Example:
         task vagrant:reload -- macos
     cmds:
-      - |
-        if [[ -n "{{.CLI_ARGS}}" ]]; then
-          case {{.CLI_ARGS}} in
-            "macos")
-              export VAGRANT_VAGRANTFILE=Vagrantfile.macos
-              export VAGRANT_DOTFILE_PATH=.vagrant_macos
-              ;;
-            "fedora")
-              export VAGRANT_VAGRANTFILE=Vagrantfile.fedora
-              export VAGRANT_DOTFILE_PATH=.vagrant_fedora
-              ;;
-            "ubuntu")
-              export VAGRANT_VAGRANTFILE=Vagrantfile.ubuntu
-              export VAGRANT_DOTFILE_PATH=.vagrant_ubuntu
-              ;;
-          esac
-        fi
-        vagrant reload
-    dir: "{{.ROOT_DIR}}/vagrant"
+      - task: _run
+        vars: { VAGRANT_ACTION: "reload" }

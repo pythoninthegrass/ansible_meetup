@@ -3,8 +3,8 @@ Vagrant.configure("2") do |config|
     tart.image = "ghcr.io/cirruslabs/ubuntu:latest"                             # required
     tart.name = "hello-ubuntu"                                                  # required
     tart.gui = false
-    tart.cpus = 2
-    tart.memory = 2048
+    tart.cpus = 3
+    tart.memory = 3072
     tart.disk = 20
     tart.display = "1024x768"
     tart.suspendable = false                                                    # not supported when shared folders are enabled

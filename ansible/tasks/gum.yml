@@ -1,0 +1,63 @@
+---
+- name: Install Gum Package
+  hosts: all
+  become: true
+  tasks:
+    - name: Install Gum on macOS
+      community.general.homebrew:
+        name: gum
+        state: latest
+      become: false
+      when: ansible_os_family == "Darwin"
+
+    - name: Install Gum on Debian-based systems
+      block:
+        - name: Create Charm GPG keyring directory
+          file:
+            path: /etc/apt/keyrings
+            state: directory
+            mode: '0755'
+
+        - name: Download and install Charm GPG key
+          ansible.builtin.get_url:
+            url: https://repo.charm.sh/apt/gpg.key
+            dest: /etc/apt/keyrings/charm.gpg
+            mode: '0644'
+
+        - name: Add Charm repository
+          ansible.builtin.apt_repository:
+            repo: "deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *"
+            state: present
+            filename: charm
+
+        - name: Update apt cache
+          ansible.builtin.apt:
+            update_cache: yes
+
+        - name: Install Gum
+          ansible.builtin.apt:
+            name: gum
+            state: latest
+      when: ansible_os_family == "Debian"
+
+    - name: Install Gum on RedHat-based systems
+      block:
+        - name: Add Charm repository
+          ansible.builtin.yum_repository:
+            name: charm
+            description: Charm
+            baseurl: https://repo.charm.sh/yum/
+            enabled: yes
+            gpgcheck: yes
+            gpgkey: https://repo.charm.sh/yum/gpg.key
+
+        - name: Import Charm GPG key
+          ansible.builtin.rpm_key:
+            key: https://repo.charm.sh/yum/gpg.key
+            state: present
+
+        - name: Install Gum
+          ansible.builtin.dnf:
+            name: gum
+            state: latest
+      when: ansible_os_family == "RedHat"

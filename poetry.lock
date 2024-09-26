@@ -64,7 +64,10 @@ pyyaml = ">=5.4.1"
 rich = ">=12.0.0"
 "ruamel.yaml" = ">=0.18.5"
 subprocess-tee = ">=0.4.1"
-wcmatch = {version = ">=8.1.2", markers = "python_version < \"3.12\""}
+wcmatch = [
+    {version = ">=8.1.2", markers = "python_version < \"3.12\""},
+    {version = ">=8.5.0", markers = "python_version >= \"3.12\""},
+]
 yamllint = ">=1.30.0"
 
 [package.extras]
@@ -2257,13 +2260,13 @@ test = ["covdefaults (>=2.3)", "coverage (>=7.2.7)", "coverage-enable-subprocess
 
 [[package]]
 name = "wcmatch"
-version = "9.0"
+version = "10.0"
 description = "Wildcard/glob file name matcher."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "wcmatch-9.0-py3-none-any.whl", hash = "sha256:af25922e2b6dbd1550fa37a4c8de7dd558d6c1bb330c641de9b907b9776cb3c4"},
-    {file = "wcmatch-9.0.tar.gz", hash = "sha256:567d66b11ad74384954c8af86f607857c3bdf93682349ad32066231abd556c92"},
+    {file = "wcmatch-10.0-py3-none-any.whl", hash = "sha256:0dd927072d03c0a6527a20d2e6ad5ba8d0380e60870c383bc533b71744df7b7a"},
+    {file = "wcmatch-10.0.tar.gz", hash = "sha256:e72f0de09bba6a04e0de70937b0cf06e55f36f37b3deb422dfaf854b867b840a"},
 ]
 
 [package.dependencies]
@@ -2457,5 +2460,5 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 
 [metadata]
 lock-version = "2.0"
-python-versions = ">=3.11,<3.12"
-content-hash = "590729fab359e8f833cd345268b3ffd4abec714102e05b10f40db6b052bb3c1f"
+python-versions = ">=3.11,<3.13"
+content-hash = "2907dba57ffa221cd8870492fe961005213697039b83b7534b75cf690d1f96c6"

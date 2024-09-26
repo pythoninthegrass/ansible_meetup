@@ -13,10 +13,55 @@
 
 ## Quickstart
 
+### Environment
+
+Create the virtual environment and install the requirements.
+
 ```bash
-# ansible
-# * TODO
+python3 -m venv .venv
+python3 -m pip install --upgrade pip
+python3 -m pip install -r requirements.txt
 ```
+
+Activate the virtual environment.
+
+```bash
+# activate
+source .venv/bin/activate
+
+# exit
+# deactivate
+```
+
+### Ansible
+
+Install third-party roles.
+
+```bash
+cd ./ansible
+ansible-galaxy install -r requirements.yml
+```
+
+Copy the `ansible.cfg.example` file to `ansible.cfg`.
+
+```bash
+# change any settings as needed
+cp ansible.cfg.example ansible.cfg
+```
+
+Edit the `hosts` file to include the IP address of the target machine.
+
+```bash
+[servers]
+192.168.105.5    ansible_user=admin
+```
+
+> [!NOTE]
+> `ansible` is an "agentless" configuration management tool.
+>
+> This means that you do not need to install any software on the target machine.
+>
+> However, you do need to have SSH access to the target machine.
 
 ## Dev
 

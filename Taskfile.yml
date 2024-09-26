@@ -6,8 +6,7 @@ shopt: ['globstar']
 dotenv: ['.env']
 
 env:
-  TLD:
-    sh: git rev-parse --show-toplevel
+  TLD: "{{.ROOT_DIR}}"
   BUILD: ./bin/build.sh
   COMPOSE_FILE:
     sh: "echo ${COMPOSE_FILE:-docker-compose.yml}"
@@ -31,6 +30,9 @@ includes:
   poetry:
     taskfile: ./taskfiles/poetry.yml
     aliases: ["poetry"]
+  vagrant:
+    taskfile: ./taskfiles/vagrant.yml
+    aliases: ["vagrant"]
 
 tasks:
   print:
@@ -48,11 +50,12 @@ tasks:
     cmds:
       - task --list
 
-  install:
-    desc: "Install project dependencies"
-    cmds:
-      - |
-        make install
+  # TODO: use bootstrap script instead of make
+  # install:
+  #   desc: "Install project dependencies"
+  #   cmds:
+  #     - |
+  #       make install
 
   pre-commit:
     desc: "Run pre-commit hooks"

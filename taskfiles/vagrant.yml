@@ -1,0 +1,226 @@
+version: "3"
+
+set: ['e', 'u', 'pipefail']
+shopt: ['globstar']
+
+env:
+
+tasks:
+  up:
+    desc: "Start the project with vagrant"
+    summary: |
+      Start the project with vagrant
+
+      Instead of the default "Vagrantfile", choose from the following:
+        - macos
+        - fedora
+        - ubuntu
+
+      Example:
+        task vagrant:up -- macos
+    cmds:
+      - |
+        if [[ -n "{{.CLI_ARGS}}" ]]; then
+          case {{.CLI_ARGS}} in
+            "macos")
+              export VAGRANT_VAGRANTFILE=Vagrantfile.macos
+              export VAGRANT_DOTFILE_PATH=.vagrant_macos
+              ;;
+            "fedora")
+              export VAGRANT_VAGRANTFILE=Vagrantfile.fedora
+              export VAGRANT_DOTFILE_PATH=.vagrant_fedora
+              ;;
+            "ubuntu")
+              export VAGRANT_VAGRANTFILE=Vagrantfile.ubuntu
+              export VAGRANT_DOTFILE_PATH=.vagrant_ubuntu
+              ;;
+          esac
+        fi
+        vagrant up
+    dir: "{{.ROOT_DIR}}/vagrant"
+
+  destroy:
+    desc: "Destroy the vagrant machine"
+    summary: |
+      Destroy the vagrant machine. Specify the Vagrantfile to use:
+        - macos
+        - fedora
+        - ubuntu
+
+      Example:
+        task vagrant:destroy -- macos
+    cmds:
+      - |
+        if [[ -n "{{.CLI_ARGS}}" ]]; then
+          case {{.CLI_ARGS}} in
+            "macos")
+              export VAGRANT_VAGRANTFILE=Vagrantfile.macos
+              export VAGRANT_DOTFILE_PATH=.vagrant_macos
+              ;;
+            "fedora")
+              export VAGRANT_VAGRANTFILE=Vagrantfile.fedora
+              export VAGRANT_DOTFILE_PATH=.vagrant_fedora
+              ;;
+            "ubuntu")
+              export VAGRANT_VAGRANTFILE=Vagrantfile.ubuntu
+              export VAGRANT_DOTFILE_PATH=.vagrant_ubuntu
+              ;;
+          esac
+        fi
+        vagrant destroy -f
+    dir: "{{.ROOT_DIR}}/vagrant"
+
+  suspend:
+    desc: "Suspend the vagrant machine"
+    summary: |
+      Suspend the vagrant machine. Specify the Vagrantfile to use:
+        - macos
+        - fedora
+        - ubuntu
+
+      Example:
+        task vagrant:suspend -- macos
+    cmds:
+      - |
+        if [[ -n "{{.CLI_ARGS}}" ]]; then
+          case {{.CLI_ARGS}} in
+            "macos")
+              export VAGRANT_VAGRANTFILE=Vagrantfile.macos
+              export VAGRANT_DOTFILE_PATH=.vagrant_macos
+              ;;
+            "fedora")
+              export VAGRANT_VAGRANTFILE=Vagrantfile.fedora
+              export VAGRANT_DOTFILE_PATH=.vagrant_fedora
+              ;;
+            "ubuntu")
+              export VAGRANT_VAGRANTFILE=Vagrantfile.ubuntu
+              export VAGRANT_DOTFILE_PATH=.vagrant_ubuntu
+              ;;
+          esac
+        fi
+        vagrant suspend
+    dir: "{{.ROOT_DIR}}/vagrant"
+
+  resume:
+    desc: "Resume the vagrant machine"
+    summary: |
+      Resume the vagrant machine. Specify the Vagrantfile to use:
+        - macos
+        - fedora
+        - ubuntu
+
+      Example:
+        task vagrant:resume -- macos
+    cmds:
+      - |
+        if [[ -n "{{.CLI_ARGS}}" ]]; then
+          case {{.CLI_ARGS}} in
+            "macos")
+              export VAGRANT_VAGRANTFILE=Vagrantfile.macos
+              export VAGRANT_DOTFILE_PATH=.vagrant_macos
+              ;;
+            "fedora")
+              export VAGRANT_VAGRANTFILE=Vagrantfile.fedora
+              export VAGRANT_DOTFILE_PATH=.vagrant_fedora
+              ;;
+            "ubuntu")
+              export VAGRANT_VAGRANTFILE=Vagrantfile.ubuntu
+              export VAGRANT_DOTFILE_PATH=.vagrant_ubuntu
+              ;;
+          esac
+        fi
+        vagrant resume
+    dir: "{{.ROOT_DIR}}/vagrant"
+
+  halt:
+    desc: "Halt the vagrant machine"
+    summary: |
+      Halt the vagrant machine. Specify the Vagrantfile to use:
+        - macos
+        - fedora
+        - ubuntu
+
+      Example:
+        task vagrant:halt -- macos
+    cmds:
+      - |
+        if [[ -n "{{.CLI_ARGS}}" ]]; then
+          case {{.CLI_ARGS}} in
+            "macos")
+              export VAGRANT_VAGRANTFILE=Vagrantfile.macos
+              export VAGRANT_DOTFILE_PATH=.vagrant_macos
+              ;;
+            "fedora")
+              export VAGRANT_VAGRANTFILE=Vagrantfile.fedora
+              export VAGRANT_DOTFILE_PATH=.vagrant_fedora
+              ;;
+            "ubuntu")
+              export VAGRANT_VAGRANTFILE=Vagrantfile.ubuntu
+              export VAGRANT_DOTFILE_PATH=.vagrant_ubuntu
+              ;;
+          esac
+        fi
+        vagrant halt
+    dir: "{{.ROOT_DIR}}/vagrant"
+
+  ssh:
+    desc: "SSH into the vagrant machine"
+    summary: |
+      SSH into the vagrant machine. Specify the Vagrantfile to use:
+        - macos
+        - fedora
+        - ubuntu
+
+      Example:
+        task vagrant:ssh -- macos
+    cmds:
+      - |
+        if [[ -n "{{.CLI_ARGS}}" ]]; then
+          case {{.CLI_ARGS}} in
+            "macos")
+              export VAGRANT_VAGRANTFILE=Vagrantfile.macos
+              export VAGRANT_DOTFILE_PATH=.vagrant_macos
+              ;;
+            "fedora")
+              export VAGRANT_VAGRANTFILE=Vagrantfile.fedora
+              export VAGRANT_DOTFILE_PATH=.vagrant_fedora
+              ;;
+            "ubuntu")
+              export VAGRANT_VAGRANTFILE=Vagrantfile.ubuntu
+              export VAGRANT_DOTFILE_PATH=.vagrant_ubuntu
+              ;;
+          esac
+        fi
+        vagrant ssh
+    dir: "{{.ROOT_DIR}}/vagrant"
+
+  reload:
+    desc: "Reload the vagrant machine"
+    summary: |
+      Reload the vagrant machine. Specify the Vagrantfile to use:
+        - macos
+        - fedora
+        - ubuntu
+
+      Example:
+        task vagrant:reload -- macos
+    cmds:
+      - |
+        if [[ -n "{{.CLI_ARGS}}" ]]; then
+          case {{.CLI_ARGS}} in
+            "macos")
+              export VAGRANT_VAGRANTFILE=Vagrantfile.macos
+              export VAGRANT_DOTFILE_PATH=.vagrant_macos
+              ;;
+            "fedora")
+              export VAGRANT_VAGRANTFILE=Vagrantfile.fedora
+              export VAGRANT_DOTFILE_PATH=.vagrant_fedora
+              ;;
+            "ubuntu")
+              export VAGRANT_VAGRANTFILE=Vagrantfile.ubuntu
+              export VAGRANT_DOTFILE_PATH=.vagrant_ubuntu
+              ;;
+          esac
+        fi
+        vagrant reload
+    dir: "{{.ROOT_DIR}}/vagrant"

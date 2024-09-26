@@ -1,7 +1,5 @@
 {
   "packages": [
-    "python@3.11.9",
-    "python311Packages.pip@latest",
     "poetry@latest",
     "ansible-lint@latest",
     "ansible@latest",
@@ -9,7 +7,8 @@
     "git@latest",
     "gnumake@latest",
     "go-task@latest",
-    "uv@latest"
+    "uv@latest",
+    "tilt@latest"
   ],
   "env": {
     "VENV_DIR":        ".venv",

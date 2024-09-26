@@ -1,18 +1,28 @@
 # code: language=ansible
 
 ---
-- name: Setup Kind Cluster
-  hosts: all
+- hosts: all
   become: true
   vars:
-    kind_version: "v0.24.0"
-    kubernetes_version: "v1.31.1"
-    control_plane_count: 1
-    worker_count: 2
+    kind_git: "https://api.github.com/repos/kubernetes-sigs/kind"
+    kind_repo: "https://kind.sigs.k8s.io/dl/{{ kind_version }}/kind-linux-amd64"
+    kind_version: v0.24.0
+    kind_install_dir: /usr/local/bin
+    cluster_name: kind
+    control_nodes: 1
+    worker_nodes: 2
+    required_packages:
+      - ca-certificates
+      - curl
+      - golang
+      - gnupg
+      - lsb-release
+      - kubectl
 
   roles:
     - role: geerlingguy.swap
       swap_file_state: absent
+      tags: pre
 
     - role: geerlingguy.docker
       vars:
@@ -24,61 +34,139 @@
           storage-driver: "vfs"
           log-opts:
             max-size: "100m"
+      tags: pre
+
+  pre_tasks:
+    - name: Check OS family
+      fail:
+        msg: "OS family {{ ansible_os_family }} is not supported!"
+      when: ansible_os_family not in ['Debian', 'RedHat']
+      tags: [always, install, create, delete]
+
+    - name: Set package manager variables for Debian
+      set_fact:
+        pkg_mgr: apt
+      when: ansible_os_family == 'Debian'
+      tags: [always, install]
+
+    - name: Set package manager variables for RedHat
+      set_fact:
+        pkg_mgr: yum
+      when: ansible_os_family == 'RedHat'
+      tags: [always, install]
 
   tasks:
-    - name: Install dependencies
-      ansible.builtin.package:
-        name:
-          - curl
-          - git
-          - golang
-        state: present
+    - name: Install prerequisites
+      block:
+        - name: Ensure APT keyrings directory exists
+          file:
+            path: /etc/apt/keyrings
+            state: directory
+            mode: '0755'
+          when: ansible_os_family == 'Debian'
 
-    - name: Install Kind
-      ansible.builtin.get_url:
-        url: "https://kind.sigs.k8s.io/dl/{{ kind_version }}/kind-{{ ansible_system | lower }}-{{ ansible_architecture }}"
-        dest: /usr/local/bin/kind
+        - name: Add Kubernetes GPG key (Debian)
+          ansible.builtin.apt_key:
+            url: https://pkgs.k8s.io/core:/stable:/v1.31/deb/Release.key
+            keyring: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+            state: present
+          when: ansible_os_family == 'Debian'
+
+        - name: Add Kubernetes repository (Debian)
+          apt_repository:
+            repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /"
+            state: present
+          when: ansible_os_family == 'Debian'
+
+        - name: Add Kubernetes repository (RedHat)
+          yum_repository:
+            name: kubernetes
+            description: Kubernetes
+            baseurl: https://pkgs.k8s.io/core:/stable:/v1.31/rpm/
+            gpgcheck: yes
+            gpgkey: https://pkgs.k8s.io/core:/stable:/v1.31/rpm/repodata/repomd.xml.key
+          when: ansible_os_family == 'RedHat'
+
+        - name: Install required packages
+          package:
+            name: "{{ required_packages }}"
+            state: present
+            update_cache: yes
+
+      tags: [install]
+
+    - name: Set CPU architecture fact
+      set_fact:
+        cpu_arch: "{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' if ansible_architecture == 'aarch64' else 'unknown' }}"
+      tags: [always, install]
+
+    - name: Fail if unsupported architecture
+      fail:
+        msg: "Unsupported CPU architecture: {{ ansible_architecture }}"
+      when: cpu_arch == 'unknown'
+      tags: [always, install]
+
+    - name: Check if kind is installed
+      command: which kind
+      register: kind_which
+      changed_when: false
+      failed_when: false
+      tags: [always]
+
+    - name: Get installed kind version
+      command: kind --version
+      register: kind_version_check
+      changed_when: false
+      failed_when: false
+      when: kind_which.rc == 0
+      tags: [always]
+
+    - name: Check if kind is installed and get version
+      command: "{{ kind_install_dir }}/kind --version"
+      register: kind_version_check
+      changed_when: false
+      failed_when: false
+      tags: [always]
+
+    - name: Download and install kind binary
+      get_url:
+        url: "https://kind.sigs.k8s.io/dl/{{ kind_version }}/kind-linux-{{ cpu_arch }}"
+        dest: "{{ kind_install_dir }}/kind"
         mode: '0755'
-      tags: qa
+      when: kind_version_check.rc != 0 or kind_version not in kind_version_check.stdout
+      tags: [install]
 
-    - name: Create Kind config file
-      ansible.builtin.copy:
-        content: |
-          kind: Cluster
-          apiVersion: kind.x-k8s.io/v1alpha4
-          nodes:
-          - role: control-plane
-          {% for _ in range(worker_count) %}
-          - role: worker
-          {% endfor %}
-        dest: /tmp/kind-config.yaml
-        register: kind_config
-      tags: qa
+    - name: Create kind cluster
+      block:
+        - name: Create cluster config
+          template:
+            src: cluster-config.yaml.j2
+            dest: "/tmp/cluster-config.yaml"
+            mode: 0644
 
-    - name: Print Kind config
-      debug:
-        msg: kind_config.content
-      tags: qa
+        - name: Create kind cluster
+          command: "kind create cluster --name {{ cluster_name }} --config /tmp/cluster-config.yaml"
+          register: cluster_creation
+          changed_when: "'Creating cluster' in cluster_creation.stdout"
 
-    - name: Create Kind cluster
-      ansible.builtin.command:
-        kind create cluster --config /tmp/kind-config.yaml --image kindest/node:{{ kubernetes_version }}
-      args:
-        creates: ~/.kube/config
-      tags: qa
+        - name: Cluster creation finished
+          debug:
+            msg: "Cluster creation of kind cluster {{ cluster_name }} has been finished."
+      tags: [create]
 
-    - name: Get cluster info
-      ansible.builtin.command: kubectl cluster-info
-      register: cluster_info
-      tags: qa
+    - name: Delete kind cluster
+      block:
+        - name: Check if cluster exists
+          command: kind get clusters
+          register: cluster_list
+          changed_when: false
+          failed_when: false
 
-    - name: Display cluster info
-      debug:
-        msg: cluster_info.stdout_lines
-      tags: qa
+        - name: Fail if cluster doesn't exist
+          fail:
+            msg: "Cluster {{ cluster_name }} seems not to be running on this system."
+          when: cluster_list.stdout | length == 0
 
-  handlers:
-    - name: Restart Docker
-      ansible.builtin.service:
-        name: docker
-        state: restarted
+        - name: Delete kind cluster
+          shell: "kind delete cluster --name {{ cluster_name }}"
+      tags: [delete]

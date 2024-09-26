@@ -122,6 +122,7 @@ tasks:
     cmds:
       - task: _run
         vars: { VAGRANT_ACTION: "ssh" }
+    ignore_error: true
 
   reload:
     desc: "Reload the vagrant machine"

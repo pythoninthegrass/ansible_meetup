@@ -1,0 +1,7 @@
+---
+
+git_user:
+  - key: user.name
+    value: username
+  - key: user.email
+    value: user@email.com

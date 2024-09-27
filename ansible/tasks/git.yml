@@ -25,6 +25,6 @@
   ansible.builtin.file:
     path: "{{ ansible_user_dir }}/git"
     state: directory
-    owner: "{{ local_user }}"
-    group: "{{ local_user }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
     recurse: false

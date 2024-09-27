@@ -1,9 +1,18 @@
 # code: language=ansible
 
 ---
-  - name: Change wallpaper
-    osx_defaults:
-      domain: com.apple.desktop
-      key: Background
-      type: string
-      value: "{{ filename }}"
+# - name: Change wallpaper
+#   osx_defaults:
+#     domain: com.apple.desktop
+#     key: Background
+#     type: string
+#     value: "{{ filename }}"
+
+- name: Set wallpaper in plist file
+  command: >
+    /usr/libexec/PlistBuddy -c "set AllSpacesAndDisplays:Desktop:Content:Choices:0:Files:0:relative file://{{ filename }}"
+    ~/Library/Application\ Support/com.apple.wallpaper/Store/Index.plist
+
+- name: Restart WallpaperAgent
+  command: killall WallpaperAgent
+  ignore_errors: yes

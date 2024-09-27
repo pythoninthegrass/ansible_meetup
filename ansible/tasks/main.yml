@@ -36,4 +36,14 @@
           tags: kind
       tags: kind
 
-    # TODO: add macos-specific tasks
+    - name: Change wallpaper
+      include_tasks:
+        file: wallpaper.yml
+        apply:
+          tags: wallpaper
+          vars:
+            # filename: "{{ ansible_env.HOME }}/Pictures/z-w-gu-office-2560×1440.jpg"
+            filename: "{{ ansible_env.HOME }}/Pictures/z-w-gu-2b9sps2t_dark_menu_bar.png"
+      tags: wallpaper
+
+    # TODO: add more macos-specific tasks

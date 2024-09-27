@@ -133,3 +133,4 @@ task vagrant:validate -- macos
 ## Further Reading
 
 * [General tips — Ansible Community Documentation](https://docs.ansible.com/ansible/latest/tips_tricks/ansible_tips_tricks.html)
+* [Allaman/mac-setup: My Ansible Playbook to configure my MacBook](https://github.com/Allaman/mac-setup)

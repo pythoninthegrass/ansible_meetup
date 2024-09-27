@@ -1,0 +1,57 @@
+# code: language=ansible
+
+---
+- hosts: localhost
+  connection: local
+  gather_facts: true
+  roles:
+    - geerlingguy.mac.homebrew
+    - geerlingguy.mac.mas
+  tasks:
+    # - import_tasks: tasks/osx.yml
+
+    - include_tasks:
+        file: wallpaper.yml
+        apply:
+          tags: wallpaper
+          vars:
+            filename: "{{ ansible_env.HOME }}/Pictures/z-w-gu-office-2560×1440.jpg"
+      tags: wallpaper
+
+  vars:
+    # osx_script: ./files/osx.sh
+
+    mas_installed_apps:
+      - { id: 405843582, name: "Alfred" }
+      - { id: 441258766, name: "Magnet" }
+
+    homebrew_installed_packages:
+      - argo
+      - argocd
+      - awscli
+      - bat
+      - cmake
+      - coreutils
+      - gh
+      - lazydocker
+      - lazygit
+      - neovim
+      - nmap
+      - npm
+      - yq
+      - yt-dlp
+      - zoxide
+
+    homebrew_uninstalled_packages: []
+
+    homebrew_taps:
+      - FelixKratz/formulae
+      - homebrew/cask-fonts
+
+    homebrew_cask_apps:
+      - firefox
+      - font-hack-nerd-font
+      - google-chrome
+      - iterm2
+
+    homebrew_cask_uninstalled_apps: []

@@ -1,0 +1,9 @@
+# code: language=ansible
+
+---
+  - name: Change wallpaper
+    osx_defaults:
+      domain: com.apple.desktop
+      key: Background
+      type: string
+      value: "{{ filename }}"

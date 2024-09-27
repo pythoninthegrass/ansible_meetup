@@ -1,3 +1,5 @@
+# code: language=ansible
+
 ---
 - name: Run all tasks
   hosts: all
@@ -34,3 +36,4 @@
           tags: kind
       tags: kind
 
+    # TODO: add macos-specific tasks

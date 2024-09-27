@@ -1,0 +1,21 @@
+{
+  "devbox.autoShellOnTerminal": false,
+  "[python]": {
+    "editor.insertSpaces": true,
+    "editor.tabSize": 4,
+    "editor.defaultFormatter": "charliermarsh.ruff"
+  },
+  "python.testing.pytestArgs": [
+    "tests"
+  ],
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestEnabled": true,
+  // https://github.com/astral-sh/ruff-vscode
+  "python.analysis.ignore": [
+    "*"
+  ],
+  "ruff.lint.run": "onType",
+  "ruff.organizeImports": true,
+  "ruff.showNotifications": "onError",
+  "ansible.python.interpreterPath": "${workspaceFolder}/.venv/bin/python"
+}

@@ -1,0 +1,18 @@
+Vagrant.configure("2") do |config|
+  config.vm.provider "tart" do |tart|
+    tart.image = "ghcr.io/cirruslabs/fedora:latest"                             # required
+    tart.name = "hello-fedora"                                                  # required
+    tart.gui = false
+    tart.cpus = 2
+    tart.memory = 2048
+    tart.disk = 20
+    tart.display = "1024x768"
+    tart.suspendable = false                                                    # not supported when shared folders are enabled
+  end
+
+  config.vm.synced_folder ".", "/vagrant", disabled: true                       # disable default synced folder
+  config.vm.synced_folder "../ansible", "/media/ansible", disabled: false
+
+  config.ssh.username = "admin"
+  config.ssh.password = "admin"
+end

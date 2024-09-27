@@ -1,0 +1,48 @@
+# code: language=ansible
+
+---
+- name: Run all tasks
+  hosts: all
+  become: false
+  gather_facts: true
+  vars_files:
+    - "{{ playbook_dir }}/vars/all.yml"
+  tasks:
+    - name: Install packages
+      include_tasks:
+        file: pkg.yml
+        apply:
+          tags: pkg
+      tags: pkg
+
+    - name: Setup git
+      include_tasks:
+        file: git.yml
+        apply:
+          tags: git
+      tags: git
+
+    - name: Install gum
+      include_tasks:
+        file: gum.yml
+        apply:
+          tags: gum
+      tags: gum
+
+    - name: Install kind
+      include_tasks:
+        file: kind.yml
+        apply:
+          tags: kind
+      tags: kind
+
+    - name: Change wallpaper
+      include_tasks:
+        file: wallpaper.yml
+        apply:
+          tags: wallpaper
+          vars:
+            filename: "{{ ansible_env.HOME }}/Pictures/z-w-gu-2b9sps2t_dark_menu_bar.png"
+      tags: wallpaper
+
+    # TODO: add more macos-specific tasks

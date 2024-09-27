@@ -1,0 +1,325 @@
+# code: language=ansible
+
+---
+- hosts: all
+  become: false
+  gather_facts: true
+  any_errors_fatal: true
+  vars:
+    os_environment:
+      - key: EDITOR
+        value: vim
+  roles:
+    - role: geerlingguy.pip
+      vars:
+        pip_install_packages:
+          - name: docker
+      become: true
+      tags: pre
+    - role: geerlingguy.docker
+      vars:
+        docker_add_repo: true
+        docker_repo_url: https://download.docker.com/linux
+        docker_users:
+          - "{{ ansible_user }}"
+        docker_daemon_options:
+          storage-driver: "vfs"
+          log-opts:
+            max-size: "100m"
+      become: true
+      tags: pre
+    - role: asdf
+      vars:
+        asdf_user: "{{ local_user }}"
+        asdf_group: "{{ local_user }}"
+        asdf_dir: "{{ ansible_user_dir }}/.asdf"
+        asdf_version: "v0.14.0"
+        asdf_plugins:
+          - name: lazydocker
+            repository: "https://github.com/comdotlinux/asdf-lazydocker.git"
+            versions: ["latest"]
+            global: "latest"
+          - name: lazygit
+            versions: ["latest"]
+            global: "latest"
+          - name: nodejs
+            versions: ["18.18.2"]
+            global: "18.18.2"
+          - name: poetry
+            versions: ["latest"]
+            global: "latest"
+          - name: python
+            versions: ["3.11.9"]
+            global: "3.11.9"
+          - name: ruby
+      tags: pre
+  pre_tasks:
+    - name: Get running ansible user
+      ansible.builtin.set_fact:
+        local_user: "{{ ansible_facts['ansible_env']['SUDO_USER'] | default(ansible_user) }}"
+        work_dir: "{{ playbook_dir | default(ansible_facts['ansible_env']['PWD']) }}"
+        cacheable: true
+      tags: pre
+
+    - name: Get ansible user home
+      ansible.builtin.shell: echo ~{{ local_user }}
+      register: home_dir
+      changed_when: false
+      check_mode: false
+      tags: pre
+
+    - name: Set home_dir fact
+      ansible.builtin.set_fact:
+        home_dir: "{{ home_dir.stdout }}"
+      tags: pre
+
+    - name: Top-level directory in project
+      ansible.builtin.shell: |
+        cd "{{ playbook_dir | dirname }}"
+        if [ -d .git ]; then
+          git rev-parse --show-toplevel
+        else
+          echo "{{ playbook_dir | dirname }}"
+        fi
+      register: tld
+      tags: pre
+
+    - name: Set tld stdout fact
+      ansible.builtin.set_fact:
+        tld: "{{ tld.stdout }}"
+      tags: pre
+
+    - name: Get OS release
+      ansible.builtin.set_fact:
+        os_release: "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}"
+        major_ver: "{{ ansible_distribution_major_version }}"
+        distro: "{{ ansible_distribution }}"
+      tags: pre
+
+    - name: Enable ssh
+      ansible.builtin.service:
+        name: sshd
+        state: started
+        enabled: yes
+      tags: pre
+
+    - name: Install devbox
+      ansible.builtin.shell: |
+        cd /tmp
+        curl -LJO https://releases.jetpack.io/devbox
+        chmod +x devbox
+        mkdir -p "{{ ansible_env.HOME }}/.local/bin"
+        mv devbox "{{ ansible_env.HOME }}/.local/bin"
+      args:
+        creates: "{{ ansible_env.HOME }}/.local/bin/devbox"
+      become: true
+      become_user: "{{ ansible_env.USER }}"
+      tags: pre
+
+    - name: Install redhat packages
+      ansible.builtin.dnf:
+        name:
+          - dnf-utils
+          - dnf-plugins-core
+          - git
+          - firewall-config
+          - NetworkManager-tui
+          - python3-dnf-plugins-extras-versionlock
+        update_cache: yes
+        state: present
+      become: true
+      when: ansible_os_family == "RedHat"
+      tags: pre
+
+    - name: Install dev tools
+      ansible.builtin.dnf:
+        name: "@Development Tools"
+        state: present
+      become: true
+      when: ansible_os_family == "RedHat"
+      tags: pre
+
+    - name: Enable CRB repository
+      ansible.builtin.dnf:
+        name: crb
+        state: present
+        enablerepo: crb
+        disable_gpg_check: yes
+        update_cache: yes
+      become: true
+      when: ansible_os_family == "RedHat" and ansible_distribution == "almalinux"
+      tags: pre
+
+    - name: Install epel-release
+      ansible.builtin.dnf:
+        name: epel-release
+        state: present
+      become: true
+      when: ansible_os_family == "RedHat" and ansible_distribution == "almalinux"
+      tags: pre
+
+    - name: Install RPM Fusion
+      ansible.builtin.dnf:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - rpmfusion-free-release
+        - rpmfusion-nonfree-release
+      become: true
+      when: ansible_os_family == "RedHat" and ansible_distribution == "almalinux"
+      tags: pre
+
+    - name: Populate service facts
+      ansible.builtin.service_facts:
+      tags: pre
+  tasks:
+    - include_vars:
+        file: vars/all.yml
+
+    - include_tasks:
+        file: pkg.yml
+        apply:
+          become_user: "{{ local_user }}"
+          tags: pre
+
+    - name: Set ssh key path on controller
+      ansible.builtin.set_fact:
+        controller_ssh_key: "{{ lookup('env', 'HOME') }}/.ssh/id_rsa"
+      delegate_to: localhost
+      run_once: true
+
+    - name: Ensure .ssh directory exists on remote
+      ansible.builtin.file:
+        path: "{{ ansible_env.HOME }}/.ssh"
+        state: directory
+        mode: '0700'
+
+    - name: Add ssh public key to authorized_keys on remote host
+      ansible.posix.authorized_key:
+        user: "{{ ansible_user }}"
+        state: present
+        key: "{{ lookup('file', controller_ssh_key + '.pub') }}"
+
+    - name: Copy ssh public key to remote host
+      ansible.builtin.copy:
+        src: "{{ controller_ssh_key }}.pub"
+        dest: "{{ ansible_env.HOME }}/.ssh/id_rsa.pub"
+        mode: '0600'
+
+    - name: Copy ssh private key to remote host
+      ansible.builtin.copy:
+        src: "{{ controller_ssh_key }}"
+        dest: "{{ ansible_env.HOME }}/.ssh/id_rsa"
+        mode: '0600'
+
+    - include_tasks:
+        file: git.yml
+        apply:
+          become_user: "{{ local_user }}"
+          tags: pre
+
+    - name: Disable systemd-zram-setup@zram0 service
+      ansible.builtin.systemd:
+        name: systemd-zram-setup@zram0.service
+        enabled: no
+        state: stopped
+      become: true
+
+    - name: Remove zram-generator-defaults package
+      ansible.builtin.dnf:
+        name: zram-generator-defaults
+        state: absent
+      become: true
+      when: ansible_os_family == "RedHat"
+
+    - name: Disable all swap
+      ansible.builtin.command: swapoff -a
+      become: true
+
+    - name: Remove swap from fstab
+      ansible.builtin.lineinfile:
+        path: /etc/fstab
+        state: absent
+        regexp: '\sswap\s'
+      become: true
+
+    - name: Remove zram device
+      ansible.builtin.command: zramctl -r /dev/zram0
+      become: true
+      ignore_errors: yes
+
+    - name: Set vm.vfs_cache_pressure (memory)
+      ansible.builtin.sysctl:
+        name: vm.vfs_cache_pressure
+        value: 50
+        state: present
+        reload: yes
+      become: true
+
+    - name: Set vm.vfs_cache_pressure (/etc/sysctl.conf)
+      ansible.builtin.lineinfile:
+        path: /etc/sysctl.conf
+        state: present
+        regexp: '^vm.vfs_cache_pressure.*'
+        line: 'vm.vfs_cache_pressure = 50'
+        insertafter: '^#vm.vfs_cache_pressure.*$'
+      become: true
+
+    - name: Add RDP service firewall
+      ansible.posix.firewalld:
+        port: 3389/tcp
+        permanent: true
+        state: enabled
+      become: true
+
+    - name: Add VNC service to firewall
+      ansible.posix.firewalld:
+        service: vnc-server
+        permanent: true
+        state: enabled
+      become: true
+
+    - name: Inactive timeout
+      community.general.dconf:
+        key: "/org/gnome/settings-daemon/plugins/power/sleep-inactive-ac-type"
+        value: "'nothing'"
+
+    - name: terminal bell
+      community.general.dconf:
+        key: "/org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/audible-bell"
+        value: "'false'"
+
+    - name: App-switcher on the current workspace only
+      community.general.dconf:
+        key: "/org/gnome/shell/app-switcher/current-workspace-only"
+        value: "'false'"
+
+    - name: Clock show date
+      community.general.dconf:
+        key: "/org/gnome/desktop/interface/clock-show-date"
+        value: "'true'"
+
+    - name: Set 12-hour clock
+      community.general.dconf:
+        key: /org/gnome/desktop/interface/clock-format
+        value: "'12h'"
+
+    - name: Enable fractional scaling
+      community.general.dconf:
+        key: /org/gnome/mutter/scale-monitor-framebuffer
+        value: "'true'"
+
+    - name: Set fractional scaling to 150%
+      community.general.dconf:
+        key: /org/gnome/desktop/interface/scale-factor
+        value: "'2'"
+
+    - name: Set night light to 1st notch
+      community.general.dconf:
+        key: /org/gnome/settings-daemon/plugins/color/night-light-temperature
+        value: "'4000'"
+
+    - name: Enable subpixel antialiasing
+      community.general.dconf:
+        key: "/org/gnome/settings-daemon/plugins/xsettings/antialiasing"
+        value: "'rgba'"

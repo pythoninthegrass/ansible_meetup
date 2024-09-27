@@ -1,0 +1,118 @@
+version: "3.0"
+
+set: ['e', 'u', 'pipefail']
+shopt: ['globstar']
+
+env:
+  BUILD: "{{.TLD}}/bin/build.sh"
+  COMPOSE_FILE: "{{.TLD}}/docker-compose.yml"
+  DOCKERFILE: "{{.TLD}}/Dockerfile"
+  PLATFORM: "linux/amd64"
+
+tasks:
+  net:
+    desc: "Create docker network"
+    cmds:
+      - |
+        docker network create \
+        --driver bridge \
+        app-tier
+
+  vol:
+    desc: "Create docker volume"
+    cmds:
+      - |
+        docker volume create \
+        --driver local \
+        app-vol
+
+  redis:
+    desc: "Redis container for caching"
+    summary: |
+      Run an ephemeral Redis container for caching Ansible facts.
+
+      USAGE
+        task docker:redis -- [start|stop]
+    cmds:
+      - |
+        if [[ -n "{{.CLI_ARGS}}" ]]; then
+          case "{{.CLI_ARGS}}" in
+            "start")
+              docker run -it --rm -d \
+                --name ${NAME} \
+                -p 6379:6379 \
+                redis:alpine
+              ;;
+            "stop")
+              docker stop ${NAME}
+              ;;
+            *)
+              echo "Invalid argument. Use stop or rm." >&2
+              ;;
+          esac
+        else
+          echo "No argument specified. Use start or stop." >&2
+        fi
+    env:
+      NAME: redis-ansible
+    silent: true
+
+  build:
+    desc: "Build the docker image"
+    cmds:
+      - |
+        {{.BUILD}} build {{.DOCKERFILE}} {{.SERVICE}}
+
+  login:
+    desc: "Login to the container registry"
+    cmds:
+      - |
+        echo "{{.REGISTRY_PASS}}" | docker login \
+          -u {{.USER_NAME}} \
+          --password-stdin {{.REGISTRY_URL}}
+    run: once
+    silent: true
+
+  push:
+    desc: "Push the docker image to the registry"
+    deps:
+      - login
+      - build
+    cmds:
+      - docker push {{.REGISTRY_URL}}/{{.USER_NAME}}/{{.SERVICE}}
+
+  up:
+    desc: "Start the project with docker compose"
+    cmds:
+      - |
+        docker compose -f {{.COMPOSE_FILE}} up -d \
+        --build \
+        --remove-orphans
+
+  exec:
+    desc: "Shell into a running container"
+    cmds:
+      - docker exec -it {{.SERVICE}} sh
+
+  logs:
+    desc: "Follow the logs of a running container"
+    cmds:
+      - docker compose logs -tf {{.SERVICE}}
+
+  stop:
+    desc: "Stop the project with docker compose"
+    cmds:
+      - docker compose -f {{.COMPOSE_FILE}} stop
+
+  down:
+    desc: "Stop and remove containers, networks, and volumes with docker compose"
+    cmds:
+      - |
+        docker compose -f {{.COMPOSE_FILE}} down \
+        --volumes
+
+  prune:
+    desc: "Prune docker"
+    cmds:
+      - docker system prune --all --force
+      - docker builder prune --all --force

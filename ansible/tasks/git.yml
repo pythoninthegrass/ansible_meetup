@@ -1,0 +1,30 @@
+# code: language=ansible
+
+---
+- debug:
+    msg: "Use within a parent playbook as an include_tasks directive."
+
+- name: Register ~/.gitconfig user.name and user.email
+  ansible.builtin.shell: |
+    git config --global user.name "{{ git_user.0.value }}"
+    git config --global user.email "{{ git_user.1.value }}"
+
+- name: Add a setting to ~/.gitconfig
+  community.general.git_config:
+    name: alias.amend
+    scope: global
+    value: commit --amend --no-edit
+
+- name: Add a setting to ~/.gitconfig
+  community.general.git_config:
+    name: push.autoSetupRemote
+    scope: global
+    value: true
+
+- name: Setup directory for git repos
+  ansible.builtin.file:
+    path: "{{ ansible_user_dir }}/git"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    recurse: false

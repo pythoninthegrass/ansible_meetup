@@ -1,0 +1,19 @@
+---
+collections:
+  - name: ansible.posix
+  - name: community.general
+  - name: geerlingguy.mac
+
+roles:
+  - name: asdf
+    src: https://github.com/pythoninthegrass/ansible-role-asdf.git
+    version: master
+  - name: geerlingguy.swap
+    src: https://github.com/pythoninthegrass/ansible-role-swap.git
+    version: master
+  - name: geerlingguy.docker
+  - name: geerlingguy.pip
+  # - name: geerlingguy.swap
+  - name: kind
+    src: https://github.com/pythoninthegrass/ansible-kind.git
+    version: master

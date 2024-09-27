@@ -1,0 +1,12 @@
+# code: language=ansible
+
+---
+- name: Set wallpaper in plist file
+  ansible.builtin.command: >
+    /usr/libexec/PlistBuddy -c "set AllSpacesAndDisplays:Desktop:Content:Choices:0:Files:0:relative file://{{ filename }}"
+    ~/Library/Application\ Support/com.apple.wallpaper/Store/Index.plist
+
+- name: Restart WallpaperAgent
+  ansible.builtin.command:
+    killall WallpaperAgent
+  ignore_errors: yes

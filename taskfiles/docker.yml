@@ -26,6 +26,37 @@ tasks:
         --driver local \
         app-vol
 
+  redis:
+    desc: "Redis container for caching"
+    summary: |
+      Run an ephemeral Redis container for caching Ansible facts.
+
+      USAGE
+        task docker:redis -- [start|stop]
+    cmds:
+      - |
+        if [[ -n "{{.CLI_ARGS}}" ]]; then
+          case "{{.CLI_ARGS}}" in
+            "start")
+              docker run -it --rm -d \
+                --name ${NAME} \
+                -p 6379:6379 \
+                redis:alpine
+              ;;
+            "stop")
+              docker stop ${NAME}
+              ;;
+            *)
+              echo "Invalid argument. Use stop or rm." >&2
+              ;;
+          esac
+        else
+          echo "No argument specified. Use start or stop." >&2
+        fi
+    env:
+      NAME: redis-ansible
+    silent: true
+
   build:
     desc: "Build the docker image"
     cmds:

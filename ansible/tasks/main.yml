@@ -36,12 +36,41 @@
           tags: gum
       tags: gum
 
-    - name: Install kind
-      include_tasks:
-        file: kind.yml
+    - name: Install docker (Linux)
+      include_role:
+        name: geerlingguy.docker
         apply:
-          tags: kind
-      tags: kind
+          vars:
+            docker_add_repo: true
+            docker_repo_url: https://download.docker.com/linux
+            docker_users:
+              - "{{ ansible_user }}"
+            docker_daemon_options:
+              storage-driver: "vfs"
+              log-opts:
+                max-size: "100m"
+            docker_install_compose_plugin: true
+            docker_compose_package: docker-compose-plugin
+            docker_compose_package_state: present
+      when: ansible_os_family == "Debian" or ansible_os_family == "RedHat"
+      tags: docker
+
+    - name: Install docker (macOS)
+      ansible.builtin.homebrew:
+        name: "{{ item }}"
+        state: latest
+      loop:
+        - docker
+        - docker-compose
+      when: ansible_os_family == "Darwin"
+      tags: docker
+
+    - name: Run docker tasks
+      include_tasks:
+        file: docker.yml
+        apply:
+          tags: docker
+      tags: docker
 
     - name: Change wallpaper (macOS)
       include_tasks:

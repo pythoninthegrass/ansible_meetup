@@ -1,0 +1,27 @@
+# code: language=ansible
+
+---
+- name: Define Docker images
+  set_fact:
+    docker_images:
+      - name: python
+        tag: "3.12"
+      - name: postgres
+        tag: "latest"
+      - name: redis
+        tag: "7.4.0-alpine"
+
+- name: Pull images
+  community.docker.docker_image_pull:
+    name: "{{ item.name }}"
+    tag: "{{ item.tag }}"
+  loop: "{{ docker_images }}"
+
+- name: Run python container
+  community.docker.docker_container:
+    name: python
+    image: python:3.12
+    state: started
+    restart_policy: always
+    command: >
+      python -c "print('Hello, Meetup!')"

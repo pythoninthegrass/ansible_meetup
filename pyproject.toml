@@ -12,8 +12,8 @@ python = ">=3.11,<3.13"
 ansible-compat = "^24.6.0"
 ansible-core = "^2.17.0"
 ansible-lint = {version = "^24.5.0", markers = "platform_system != 'Windows'"}
-ansibug = "^0.1.0"
-eliot = "^1.15.0"
+argcomplete = "^3.4.0"
+docker = "^7.1.0"
 pexpect = "^4.9.0"
 python-decouple = "^3.8"
 redis = "5.0.8"
@@ -23,7 +23,6 @@ wheel = "^0.43.0"
 yamllint = "^1.35.1"
 
 [tool.poetry.group.dev.dependencies]
-argcomplete = "^3.4.0"
 icecream = "^2.1.3"
 ipython = "^8.22.1"
 poetry-plugin-export = "^1.8.0"

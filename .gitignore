@@ -9,6 +9,7 @@
 **/all.yml
 **/ansible.cfg
 **/facts/*
+**/files/*
 **/keys/*
 **/roles/*
 keys.json

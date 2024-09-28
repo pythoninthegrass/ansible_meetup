@@ -1,5 +1,7 @@
 # Automation with Ansible
 
+<!-- https://simpleslides.dev/exographicskip/automation-with-ansible -->
+
 ## `whoami`
 
 I work as a [DevOps Engineer](https://www.linkedin.com/in/lancestephens/) at a local voter analytics company.
@@ -53,11 +55,13 @@ Unlike some other configuration management tools from around the same time (e.g.
 
 See the [official docs](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#installing-and-upgrading-ansible) for more info but to quickly get started, we'll use [pipx](https://pypa.github.io/pipx/installation/).
 
+* Install Ansible with dependencies
 ```bash
-# install ansible w/deps
 pipx install --include-deps ansible
+```
 
-# add argcomplete for shell completion and add to $PATH
+* Add `argcomplete` for shell completion and add to `$PATH`
+```bash
 pipx inject --include-apps ansible argcomplete
 ```
 
@@ -96,3 +100,5 @@ pipx inject --include-apps ansible argcomplete
 
 
 ## Demo
+
+![GitHub Repo](qr.png)

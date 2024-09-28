@@ -5,3 +5,14 @@ git_user:
     value: username
   - key: user.email
     value: user@email.com
+
+git_repos:
+  - repo: repo1
+    version: main
+  - repo: gist1
+    name: gist1
+    version: HEAD
+
+ssh_key: id_rsa
+
+filename: "{{ playbook_dir }}/files/yourwallpaper.png"

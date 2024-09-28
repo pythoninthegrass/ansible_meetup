@@ -43,7 +43,7 @@
           tags: kind
       tags: kind
 
-    - name: Change wallpaper
+    - name: Change wallpaper (macOS)
       include_tasks:
         file: wallpaper.yml
         apply:

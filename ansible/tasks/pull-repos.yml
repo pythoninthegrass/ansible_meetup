@@ -1,0 +1,16 @@
+# code: language=ansible
+
+---
+# * This looks a bit strange, but abuses block scalars to create a description
+- name: |
+    Clone all repos]
+    DESC [Clone all repositories from GitHub. Set UPDATE=true to update existing repos.
+  ansible.builtin.git:
+    repo: "{{ item.repo }}"
+    dest: "{{ ansible_user_dir }}/git/{{ item.name | default(item.repo.split('/')[-1].split('.')[0]) }}"
+    version: "{{ item.version | default('HEAD') }}"
+    update: "{{ lookup('env', 'UPDATE') | default('false') | bool }}"
+    force: false
+    key_file: "{{ ansible_user_dir }}/.ssh/{{ ssh_key }}"
+  loop: "{{ git_repos }}"
+  ignore_errors: yes

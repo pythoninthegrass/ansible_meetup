@@ -1,9 +1,6 @@
 # code: language=ansible
 
 ---
-- debug:
-    msg: "Use within a parent playbook as an include_tasks directive."
-
 - name: Register ~/.gitconfig user.name and user.email
   ansible.builtin.shell: |
     git config --global user.name "{{ git_user.0.value }}"
@@ -28,3 +25,21 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     recurse: false
+
+- name: Copy ssh keys
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ ansible_user_dir }}/.ssh/{{ item | basename }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0600'
+  with_items:
+    - "{{ lookup('env', 'HOME') }}/.ssh/{{ ssh_key }}"
+    - "{{ lookup('env', 'HOME') }}/.ssh/{{ ssh_key }}.pub"
+
+- name: Accept GitHub ssh key fingerprint
+  ansible.builtin.shell: |
+    mkdir -p {{ ansible_user_dir }}/.ssh
+    ssh-keyscan github.com >> {{ ansible_user_dir }}/.ssh/known_hosts
+    ssh-keyscan gist.github.com >> {{ ansible_user_dir }}/.ssh/known_hosts
+  changed_when: false

@@ -22,6 +22,13 @@
           tags: git
       tags: git
 
+    - name: Pull repos
+      include_tasks:
+        file: pull-repos.yml
+        apply:
+          tags: pull
+      tags: pull
+
     - name: Install gum
       include_tasks:
         file: gum.yml
@@ -40,9 +47,7 @@
       include_tasks:
         file: wallpaper.yml
         apply:
-          tags: wallpaper
           vars:
-            filename: "{{ ansible_env.HOME }}/Pictures/z-w-gu-2b9sps2t_dark_menu_bar.png"
+            filename: "{{ playbook_dir }}/files/z-w-gu-nier.png"
+          tags: wallpaper
       tags: wallpaper
-
-    # TODO: add more macos-specific tasks

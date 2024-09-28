@@ -1,6 +1,7 @@
 ---
 collections:
   - name: ansible.posix
+  - name: community.docker
   - name: community.general
   - name: geerlingguy.mac
 
@@ -14,6 +15,6 @@ roles:
   - name: geerlingguy.docker
   - name: geerlingguy.pip
   # - name: geerlingguy.swap
-  - name: kind
-    src: https://github.com/pythoninthegrass/ansible-kind.git
-    version: master
+  # - name: kind
+  #   src: https://github.com/pythoninthegrass/ansible-kind.git
+  #   version: master

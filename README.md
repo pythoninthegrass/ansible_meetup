@@ -132,5 +132,8 @@ task vagrant:validate -- macos
 
 ## Further Reading
 
+* [Using Ansible playbooks — Ansible Community Documentation](https://docs.ansible.com/ansible/latest/playbook_guide/index.html)
+* [4 things to know about programming using Ansible | Enable Sysadmin](https://www.redhat.com/sysadmin/ansible-coding-programming)
 * [General tips — Ansible Community Documentation](https://docs.ansible.com/ansible/latest/tips_tricks/ansible_tips_tricks.html)
+* [geerlingguy/mac-dev-playbook: Mac setup and configuration via Ansible.](https://github.com/geerlingguy/mac-dev-playbook)
 * [Allaman/mac-setup: My Ansible Playbook to configure my MacBook](https://github.com/Allaman/mac-setup)

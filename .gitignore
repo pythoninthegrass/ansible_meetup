@@ -7,10 +7,12 @@
 **/*.com
 **/*.sqlite
 **/all.yml
+**/ansible-navigator.v*
 **/ansible.cfg
 **/facts/*
 **/files/*
 **/keys/*
+**/playbook-artifacts/*
 **/roles/*
 keys.json
 redis.conf

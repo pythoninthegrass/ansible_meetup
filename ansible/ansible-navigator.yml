@@ -1,0 +1,19 @@
+---
+ansible-navigator:
+  ansible:
+    config:
+      help: False
+      path: ./ansible.cfg
+    inventory:
+      entries:
+        - ./hosts
+  execution-environment:
+    container-engine: docker
+    enabled: false
+    image: quay.io/ansible/ansible-navigator-demo-ee:latest
+  logging:
+    level: warning
+  mode: stdout
+  playbook-artifact:
+    enable: true
+    save-as: playbook-artifacts/{playbook_name}-artifact-{time_stamp}.json

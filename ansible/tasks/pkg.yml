@@ -40,19 +40,17 @@
       - git
       - make
       - python3
-      - python3-certbot-nginx
       - python3-pip
       - python3-psutil
       - python3-redis
-      - redis
       - tree
       - unzip
       - vim
       - wget
-      - which
     state: present
   changed_when: false
   become: true
+  when: ansible_os_family == "Debian" or ansible_os_family == "RedHat"
 
 - name: Install Red Hat packages
   ansible.builtin.dnf:
@@ -60,20 +58,10 @@
       - "@Development tools"
       - bzip2
       - gcc
-      - gdbm-devel
-      - libffi-devel
-      - libyaml-devel
-      - ncurses-devel
-      - openssl-devel
-      - patch
       - python3
       - python3-devel
-      - python3-pip
       - python3-setuptools
       - python3-virtualenv
-      - readline-devel
-      - rust
-      - zlib-devel
     state: present
   become: true
   when: ansible_os_family == "RedHat"
@@ -83,40 +71,9 @@
     name:
       - apt-transport-https
       - autoconf
-      - build-essential
       - gnupg-agent
       - jq
-      - libbz2-dev
-      - libdb-dev
-      - libffi-dev
-      - libffi-dev
-      - libgdbm-dev
-      - libgdbm6
-      - libgmp-dev
-      - liblzma-dev
-      - libncurses5-dev
-      - libncursesw5-dev
-      - libreadline-dev
-      - libreadline6-dev
-      - libsqlite3-dev
-      - libssl-dev
-      - libxml2-dev
-      - libxmlsec1-dev
-      - libyaml-dev
-      - llvm
-      - moreutils
-      - net-tools
-      - nfs-kernel-server
-      - patch
-      - python3
-      - python3-pip
       - software-properties-common
-      - tk-dev
-      - tree
-      - uuid-dev
-      - xfsprogs
-      - xz-utils
-      - zlib1g-dev
     update_cache: yes
     state: present
   become: true

@@ -5,6 +5,8 @@
 *.retry
 **/.vagrant*/
 **/*.com
+**/*.gif
+**/*.mp4
 **/*.sqlite
 **/all.yml
 **/ansible-navigator.v*

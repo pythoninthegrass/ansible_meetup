@@ -1,7 +1,12 @@
 # code: language=ansible
 
 ---
+- name: Prerequisites for changing wallpaper
+  debug:
+    msg: "Privacy & Security > Automation > sshd-keygen-wrapper > System Events"
+  when: ansible_os_family == "Darwin"
+
 - name: Set wallpaper using osascript
-  command: >
+  ansible.builtin.command: >
     osascript -e 'tell application "System Events" to tell every desktop to set picture to POSIX file "{{ filename }}"'
   when: ansible_os_family == "Darwin"

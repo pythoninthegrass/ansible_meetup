@@ -76,6 +76,22 @@ ansible -m ping all
 >
 > However, you do need to have SSH access to the target machine.
 
+Once the machine is reachable over SSH, run the `main.yml` file:
+
+```bash
+ansible-navigator run tasks/main.yml --limit 'servers' -v
+```
+
+This will execute these tasks sequentially: 
+* `pkg.yml`
+* `git.yml`
+* `pull-repos.yml`
+* `gum.yml`
+* `docker.yml`
+* `wallpaper.yml` 
+
+Shout-out to @schultzie for convincing me to switch to `ansible-navigator`!
+
 ## Dev
 
 ```bash
@@ -133,6 +149,7 @@ task vagrant:validate -- macos
 ## Further Reading
 
 * [Using Ansible playbooks — Ansible Community Documentation](https://docs.ansible.com/ansible/latest/playbook_guide/index.html)
+* [Ansible Navigator Documentation](https://ansible.readthedocs.io/projects/navigator/)
 * [4 things to know about programming using Ansible | Enable Sysadmin](https://www.redhat.com/sysadmin/ansible-coding-programming)
 * [General tips — Ansible Community Documentation](https://docs.ansible.com/ansible/latest/tips_tricks/ansible_tips_tricks.html)
 * [geerlingguy/mac-dev-playbook: Mac setup and configuration via Ansible.](https://github.com/geerlingguy/mac-dev-playbook)

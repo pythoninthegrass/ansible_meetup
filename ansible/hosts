@@ -8,6 +8,7 @@ localhost               ansible_connection=local
 [servers]
 192.168.105.3           ansible_user=admin
 192.168.105.5           ansible_user=admin
+192.168.105.7           ansible_user=admin
 
 [dev]
 192.168.8.155
@@ -15,7 +16,6 @@ localhost               ansible_connection=local
 192.168.8.75
 192.168.8.76
 lance@orb
-192.168.105.7           ansible_user=lima
 
 [all:vars]
 ansible_become_method=sudo

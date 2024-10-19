@@ -1,0 +1,27 @@
+version: "3.0"
+
+set: ['e', 'u', 'pipefail']
+shopt: ['globstar']
+
+env:
+  REDIS_PORT: "6379"
+  REDIS_CONF: "./devbox.d/redis/redis.conf"
+
+tasks:
+  start:
+    desc: "Start Redis server"
+    cmds:
+      - devbox services start redis --quiet
+    silent: true
+
+  restart:
+    desc: "Restart Redis server"
+    cmds:
+      - devbox services restart redis --quiet
+    silent: true
+
+  stop:
+    desc: "Stop Redis server"
+    cmds:
+      - devbox services stop redis --quiet
+    silent: true
